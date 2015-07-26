@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "respository": "https://github.com/cKellyDesign/trackerApp.git",
   "description": "Tracking Framework",
+  "start": "node server/index.js",
   "devDependencies": {
     "grunt": "~0.4.5",
     "grunt-contrib-jshint": "~0.10.0",
@@ -21,6 +22,10 @@
     "grunt-contrib-nodeunit": "^0.4.1",
     "grunt-contrib-uglify": "^0.5.1"
   },
+  "engines": {
+    "node": "0.12.7",
+    "npm": "2.11.3"
+  }, 
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
