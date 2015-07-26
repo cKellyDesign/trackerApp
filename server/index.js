@@ -9,9 +9,17 @@ var trackerApp = express();
 router.setRoutes(trackerApp);
 
 // Set Configs
-app.set('port', 8000);
-app.set('case sensitive routing', false);
+trackerApp.set('port', 8000);
+trackerApp.set('case sensitive routing', false);
 
 // Set Static Paths
+// console.log("\n\n__dirname = ", __dirname);
+trackerApp.use('/js', express.static(path.join(__dirname, '../www/js')));
+trackerApp.use('/css', express.static(path.join(__dirname, '../www/css')));
+trackerApp.use('/img', express.static(path.join(__dirname, '../www/img')));
 
 
+// Listener
+var server = trackerApp.listen(process.env.PORT || trackerApp.get('port'), function(){
+	console.log("Server has been started at " + server.address().port);
+})
