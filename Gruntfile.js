@@ -37,6 +37,9 @@ module.exports = function(grunt) {
 			css: {
 				files: ['styles/**/**.scss', 'syles/**.scss'],
 				tasks: ['sass']
+			// },
+			// html: {
+			// 	files: ['www/index.html']
 			}
 		},
 
