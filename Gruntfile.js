@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 		express: {
 			options: {
 				port: 8000
-			}
+			},
 			dev: {
 				options: {
 					script: 'server/index.js',
@@ -58,11 +58,11 @@ module.exports = function(grunt) {
 	});
 
 	// Load Task Dependencies
-	grunt.loadNpmTasks('grunt-express-sever');
+	grunt.loadNpmTasks('grunt-express-server');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-contrib-requirejs');
 
 	// Define Tasks
-	grunt.regesterTastk('default', ['express:dev', 'watch']);
+	grunt.registerTask('default', ['express:dev', 'watch']);
 };
