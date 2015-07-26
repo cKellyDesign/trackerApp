@@ -1,7 +1,8 @@
+var path = require('path');
+
 exports.setRoutes = function(trackerApp) {
 
 	trackerApp.get('/', function (req, res){
-		// res.sendfile('../www/index.html');
-		res.send('Hello World!');
+		res.sendFile(path.join(__dirname + '/../www/index.html'));
 	});
 };
