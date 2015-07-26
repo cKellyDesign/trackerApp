@@ -1,9 +1,14 @@
 var http = require('http'),
 	path = require('path'),
 	express = require('express'),
+	requireJS = require('requirejs'),
 	router = require('./router');
 
 var trackerApp = express();
+
+requireJS.config({
+	nodeRequire: require
+});
 
 // Set Routes
 router.setRoutes(trackerApp);

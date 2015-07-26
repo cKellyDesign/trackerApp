@@ -1,2 +1,7 @@
 platforms/
 node_modules/
+.sass-cache/
+
+www/css/main.css
+www/css/main.css.map
+www/js/trackerApp.js

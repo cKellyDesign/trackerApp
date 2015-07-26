@@ -24,11 +24,19 @@ module.exports = function(grunt) {
 		// Watch
 		watch: {
 			express: {
-				files: [],
+				files: ['server/**.js', 'server/**/**.js'],
 				tasks: ['express:dev'],
 				options: {
 					spawn: false
 				}
+			},
+			scripts: {
+				files: ['scripts/**.js', 'scripts/**/**.js'],
+				tasks: ['requirejs:compile']
+			},
+			css: {
+				files: ['styles/**/**.scss', 'syles/**.scss'],
+				tasks: ['sass']
 			}
 		},
 
@@ -45,11 +53,12 @@ module.exports = function(grunt) {
 		},
 
 		// RequireJS
-		reuqirejs: {
+		requirejs: {
 			compile: {
 				options: {
 					baseUrl: 'scripts',
 					mainConfigFile: 'scripts/config.js',
+					name: '../node_modules/requirejs/require',
 					out: 'www/js/trackerApp.js'
 				}
 			}
@@ -64,5 +73,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-requirejs');
 
 	// Define Tasks
-	grunt.registerTask('default', ['express:dev', 'watch']);
+	grunt.registerTask('default', ['express:dev', 'sass', 'requirejs:compile', 'watch']);
 };
