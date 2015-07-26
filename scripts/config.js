@@ -18,5 +18,4 @@ require.config({
 		'backbone': '../components/backboneJS/backbone-min',
 		'underscore': '../components/underscoreJS/underscore-min'
 	}
-
 });
