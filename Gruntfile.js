@@ -42,6 +42,17 @@ module.exports = function(grunt) {
 					'www/css/main.css': 'styles/main.scss'
 				}
 			}
+		},
+
+		// RequireJS
+		reuqirejs: {
+			compile: {
+				options: {
+					baseUrl: 'scripts',
+					mainConfigFile: 'scripts/config.js',
+					out: 'www/js/trackerApp.js'
+				}
+			}
 		}
 
 	});
@@ -50,6 +61,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-express-sever');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-sass');
+	grunt.loadNpmTasks('grunt-contrib-requirejs');
 
 	// Define Tasks
 	grunt.regesterTastk('default', ['express:dev', 'watch']);
