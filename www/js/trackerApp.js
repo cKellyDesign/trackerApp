@@ -2103,19 +2103,19 @@ define('templates/rootTemplate',[], function(){
 });
 define('templates/inputTemplate',[], function(){
 	var inputTemplate = '<div class="form-group">' +
-    '<input type="text" class="form-control j-input" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
+    '<input type="text" class="form-control j-input-text" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
   '</div>';
 	return inputTemplate;
 });
 define('templates/textAreaTemplate',[], function(){
 	var textareaTemplate = '<div class="form-group">' +
-        '<textarea class="form-control j-textarea" type="<%= field.slug %>" id="message" placeholder="<%= field.placeholder %>" maxlength="140" rows="7"></textarea>' + 
-          '<span class="help-block"><p id="characterLeft" class="help-block ">You have reached the limit</p></span>' +
-        '</div>';
+		'<textarea class="form-control j-textarea j-input" type="<%= field.slug %>" name="message" id="message" placeholder="<%= field.placeholder %>" maxlength="140" rows="7"></textarea>' + 
+		  '<span class="help-block"><p id="characterLeft" class="help-block ">You have reached the limit</p></span>' +
+		'</div>';
 	return textareaTemplate;
 });
 define('templates/submitBtnTemplate',[], function(){
-	var submitBtnTemplate = '<button type="button" id="submit" name="<%= field.slug %>" class="btn btn-primary pull-right"><%= field.placeholder %></button>';
+	var submitBtnTemplate = '<button type="button" id="submit" name="<%= field.slug %>" class="btn btn-primary pull-right j-submit"><%= field.placeholder %></button>';
 	return submitBtnTemplate;
 });
 define('templates/formTemplate',[
@@ -2148,65 +2148,82 @@ define('templates/formTemplate',[
 	return FormTemplate;
 });
 define('views/formView',[
-	'templates/formTemplate'], function(formTemplate){
-	var FormView = Backbone.View.extend({
+  'templates/formTemplate'
+], function(formTemplate) {
+  var FormView = Backbone.View.extend({
 
-		charMax: 140,
+    charMax: 140,
 
-		template: _.template(formTemplate),
+    template: _.template(formTemplate),
 
-		events: {
-			'keydown #message': 'checkMessageLength',
-			'click #submit': 'sendMessage',
-			'click .j_initThisForm_btn': 'render'
-		},
+    events: {
+      'keydown #message': 'checkMessageLength',
+      'click #submit': 'sendMessage',
+      'click .j_initThisForm_btn': 'render'
+    },
 
-		initialize: function() {
-			this.model.on('change', this.isReady, this);
-		},
+    initialize: function() {
+      this.model.on('change', this.isReady, this);
+    },
 
-		isReady: function(){
-			$('.j_initThisForm_btn').removeClass('disabled');
-		},
+    isReady: function() {
+      $('.j_initThisForm_btn').removeClass('disabled');
+    },
 
-		setElements: function() {
-			this.inputs = $('.j-input', this.$el);
-			this.textareas = $('.j-textarea');
-			this.messageBox = $('#message');
-			this.charLeft = $('#characterLeft');
-			$(this.charLeft).text('140 characters left');
-		},
+    setElements: function() {
+      this.inputs = $('.j-input', this.$el);
+      this.textareas = $('.j-textarea');
+      this.messageBox = $('#message');
+      this.charLeft = $('#characterLeft');
+      $(this.charLeft).text('140 characters left');
+    },
 
-		checkMessageLength: function() {
-			var currValLength = $(this.messageBox).val().length;
+    checkMessageLength: function() {
+      var currValLength = $(this.messageBox).val().length;
 
-			if (currValLength >= this.charMax) {
-				$(this.charLeft).text('You have reached the limit.');
-				$(this.messageBox).addClass('red').addClass('disabled');
-			} else {
-				var remainingLength = this.charMax - currValLength;
-				$(this.charLeft).text(remainingLength + ' characters left.');
-				$(this.messageBox).removeClass('disabled').removeClass('red');
-			}
-		},
+      if (currValLength >= this.charMax) {
+        $(this.charLeft).text('You have reached the limit.');
+        $(this.messageBox).addClass('red').addClass('disabled');
+      } else {
+        var remainingLength = this.charMax - currValLength;
+        $(this.charLeft).text(remainingLength + ' characters left.');
+        $(this.messageBox).removeClass('disabled').removeClass('red');
+      }
+    },
 
-		sendMessage: function(e){
-			e.preventDefault();
-		},
+    sendMessage: function(e) {
+      e.preventDefault();
+      var messageData = {};
+      _.each($('.form-control', this.$el), function(ele){
+        messageData[$(ele).attr('name')] = $(ele).val();
+      });
+      // console.log(messageData);
 
-		render: function() {
-			this.$el.html(this.template(this.model.attributes));
-			this.setElements();
-			return this;
-		}
+      $.ajax({
+        type: "POST",
+        url: "/sendMessage/abcd",
+        data: JSON.stringify({ formMessage: messageData }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },
+        failure: function(err) { console.log("FAIL!! Err - ", err); }
+      });
+    },
 
-	});
-	return FormView;
+    render: function() {
+      this.$el.html(this.template(this.model.attributes));
+      this.setElements();
+      return this;
+    }
+
+  });
+  return FormView;
 });
-define('models/formModel',[], function(){
-	var formModel = Backbone.Model.extend({
 
-		initialize: function() {
+define('models/formModel',[], function() {
+  var formModel = Backbone.Model.extend({
+
+    initialize: function() {
       this.fetchFullModel();
     },
 
@@ -2225,40 +2242,45 @@ define('models/formModel',[], function(){
       });
     }
 
-	});
-	return formModel;
+  });
+  return formModel;
 });
+
 define('views/rootView',[
-	'templates/rootTemplate',
-	'views/formView',
-	'models/formModel'], function(rootTemplate, formView, formModel){
-	var RootView = Backbone.View.extend({
+  'templates/rootTemplate',
+  'views/formView',
+  'models/formModel'
+], function(rootTemplate, formView, formModel) {
+  var RootView = Backbone.View.extend({
 
-		template: _.template(rootTemplate),
+    template: _.template(rootTemplate),
 
-		initialize: function() {
-			this.render();
-			this.initForms();
-		},
+    initialize: function() {
+      this.render();
+      this.initForms();
+    },
 
-		initForms: function() {
-			_.each($('.j_form_wrap', this.$el), function(formEle){
-				var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
-				var newForm = new formView({
-					el: $(formEle),
-					model: new formModel({'formSlug': formSlug})
-				});
-			});
-		},
+    initForms: function() {
+      _.each($('.j_form_wrap', this.$el), function(formEle) {
+        var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
+        var newForm = new formView({
+          el: $(formEle),
+          model: new formModel({
+            'formSlug': formSlug
+          })
+        });
+      });
+    },
 
-		render: function() {
-			this.$el.html(this.template(this.model.attributes));
-			return this;
-		}
+    render: function() {
+      this.$el.html(this.template(this.model.attributes));
+      return this;
+    }
 
-	});
-	return RootView;
+  });
+  return RootView;
 });
+
 define('models/rootModel',[], function() {
   var RootModel = Backbone.Model.extend({
     
@@ -2267,17 +2289,20 @@ define('models/rootModel',[], function() {
 });
 
 require([
-	'views/rootView', 
-	'models/rootModel', 
-	'templates/rootTemplate'
-	], function(RootView, RootModel, RootTemplate){
-	var arr =  ['testForm', 'myForm', 'longForm'];
-	TrApp = window.TrApp || {};
-	TrApp.root = new RootView({
-		el: $('.j-main'),
-		model: new RootModel({'forms': arr })
-	});
+  'views/rootView',
+  'models/rootModel',
+  'templates/rootTemplate'
+], function(RootView, RootModel, RootTemplate) {
+  var arr = ['testForm', 'myForm', 'longForm'];
+  TrApp = window.TrApp || {};
+  TrApp.root = new RootView({
+    el: $('.j-main'),
+    model: new RootModel({
+      'forms': arr
+    })
+  });
 
 });
+
 define("require.js", function(){});
 

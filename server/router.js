@@ -1,7 +1,6 @@
 var path = require('path');
 var _ = require('underscore');
 var formModelHelper = require('./helpers/formsModelHelper');
-// var formModels = 
 
 exports.setRoutes = function(trackerApp) {
 
@@ -11,5 +10,10 @@ exports.setRoutes = function(trackerApp) {
 
 	trackerApp.get('/getFormModel/:formSlug', function (req, res){
 		res.send(_.findWhere(formModelHelper, { 'formName': req.params.formSlug }));
+	});
+
+	trackerApp.post('/sendMessage/abcd', function (req, res){
+		// console.log("\n\nSERVER HIT AT SEND MESSAGE ", req.body);
+		res.send(req.body);
 	});
 };

@@ -44,6 +44,21 @@ define([
 
     sendMessage: function(e) {
       e.preventDefault();
+      var messageData = {};
+      _.each($('.form-control', this.$el), function(ele){
+        messageData[$(ele).attr('name')] = $(ele).val();
+      });
+      // console.log(messageData);
+
+      $.ajax({
+        type: "POST",
+        url: "/sendMessage/abcd",
+        data: JSON.stringify({ formMessage: messageData }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },
+        failure: function(err) { console.log("FAIL!! Err - ", err); }
+      });
     },
 
     render: function() {

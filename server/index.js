@@ -2,6 +2,7 @@ var http = require('http'),
 	path = require('path'),
 	express = require('express'),
 	requireJS = require('requirejs'),
+	bodyParser = require('body-parser'),
 	router = require('./router');
 
 var trackerApp = express();
@@ -9,6 +10,8 @@ var trackerApp = express();
 requireJS.config({
 	nodeRequire: require
 });
+
+trackerApp.use(bodyParser.json());
 
 // Set Routes
 router.setRoutes(trackerApp);
