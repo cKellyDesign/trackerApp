@@ -62,7 +62,8 @@ module.exports = function(grunt) {
 					baseUrl: 'scripts',
 					mainConfigFile: 'scripts/config.js',
 					name: '../node_modules/requirejs/require',
-					out: 'www/js/trackerApp.js'
+					out: 'www/js/trackerApp.js',
+					optimize: 'none',
 				}
 			}
 		}
