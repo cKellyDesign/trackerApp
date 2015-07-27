@@ -1,0 +1,10 @@
+{
+  "name":"trackerApp",
+  "scripts":{},
+  "env":{
+    "node_env":"dev"
+  },
+  "addons":[
+    "papertrail"
+  ]
+}
