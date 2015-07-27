@@ -1,7 +1,7 @@
-define([], function(){
-	var formModel = Backbone.Model.extend({
+define([], function() {
+  var formModel = Backbone.Model.extend({
 
-		initialize: function() {
+    initialize: function() {
       this.fetchFullModel();
     },
 
@@ -20,6 +20,6 @@ define([], function(){
       });
     }
 
-	});
-	return formModel;
+  });
+  return formModel;
 });
