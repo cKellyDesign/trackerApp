@@ -6,26 +6,23 @@ define([
 
 		template: _.template(rootTemplate),
 
-		events: {
-			'click .j_initThisForm_btn': 'initForms'
-		},
-
 		initialize: function() {
 			this.render();
+			this.initForms();
 		},
 
 		initForms: function() {
 			_.each($('.j_form_wrap', this.$el), function(formEle){
-				var data = $('.j_initThisForm_btn', formEle).data('form-boot');
+				var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
 				var newForm = new formView({
 					el: $(formEle),
-					model: new formModel(JSON.parse(decodeURI(data)))
+					model: new formModel({'formSlug': formSlug})
 				});
 			});
 		},
 
 		render: function() {
-			this.$el.html(this.template());
+			this.$el.html(this.template(this.model.attributes));
 			return this;
 		}
 

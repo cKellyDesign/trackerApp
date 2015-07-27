@@ -1,6 +1,6 @@
-define([], function(){
-	var RootModel = Backbone.Model.extend({
-
-	});
-	return RootModel;
+define([], function() {
+  var RootModel = Backbone.Model.extend({
+    
+  });
+  return RootModel;
 });

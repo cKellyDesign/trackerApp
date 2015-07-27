@@ -2,18 +2,22 @@ define([
 	'templates/formTemplate'], function(formTemplate){
 	var FormView = Backbone.View.extend({
 
-		// todo: move into Form View Object
 		charMax: 140,
 
 		template: _.template(formTemplate),
 
 		events: {
 			'keydown #message': 'checkMessageLength',
-			'click #submit': 'sendMessage'
+			'click #submit': 'sendMessage',
+			'click .j_initThisForm_btn': 'render'
 		},
 
 		initialize: function() {
-			this.render();
+			this.model.on('change', this.isReady, this);
+		},
+
+		isReady: function(){
+			$('.j_initThisForm_btn').removeClass('disabled');
 		},
 
 		setElements: function() {

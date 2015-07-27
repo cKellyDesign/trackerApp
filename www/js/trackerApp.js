@@ -2092,37 +2092,12 @@ var requirejs, require, define;
 define("../node_modules/requirejs/require", function(){});
 
 define('templates/rootTemplate',[], function(){
-	var model = {
-		'formTitle': 'Send Me a Message',
-		'formName': 'testForm',
-		'inputs': [{
-			'slug': 'firstName',
-			'placeholder': 'First Name',
-			'type': 'text'
-		}, {
-			'slug': 'lastName',
-			'placeholder': 'Last Name',
-			'type': 'text'
-		}, {
-			'slug': 'email',
-			'placeholder': 'Email',
-			'type': 'text'
-		},{
-			'slug': 'message',
-			'placeholder': 'Message',
-			'type': 'textarea'
-		}, {
-			'slug': 'submit',
-			'placeholder': 'Send Message Now',
-			'type': 'submit'
-		}]
-	};
-
-	var stringData = encodeURI(JSON.stringify(model));
 	var RootTemplate = '<section class="root_wrap">' +
-		'<div class="j_form_wrap">' +
-			'<button class="j_initThisForm_btn" data-form-boot="' + stringData + '">Click Here to see the testForm</button>' +
-		'</div>' +
+		'<% _.each(forms, function(formSlug) { %>' +
+			'<div class="j_form_wrap form-group">' +
+				'<button class="j_initThisForm_btn btn btn-primary disabled" data-form-slug="<%= formSlug %>">Click Here to see <%= formSlug %></button>' +
+			'</div>' +
+		'<% }); %>' +
 	'</section>';
 	return RootTemplate;
 });
@@ -2176,18 +2151,22 @@ define('views/formView',[
 	'templates/formTemplate'], function(formTemplate){
 	var FormView = Backbone.View.extend({
 
-		// todo: move into Form View Object
 		charMax: 140,
 
 		template: _.template(formTemplate),
 
 		events: {
 			'keydown #message': 'checkMessageLength',
-			'click #submit': 'sendMessage'
+			'click #submit': 'sendMessage',
+			'click .j_initThisForm_btn': 'render'
 		},
 
 		initialize: function() {
-			this.render();
+			this.model.on('change', this.isReady, this);
+		},
+
+		isReady: function(){
+			$('.j_initThisForm_btn').removeClass('disabled');
 		},
 
 		setElements: function() {
@@ -2227,6 +2206,25 @@ define('views/formView',[
 define('models/formModel',[], function(){
 	var formModel = Backbone.Model.extend({
 
+		initialize: function() {
+      this.fetchFullModel();
+    },
+
+    fetchFullModel: function() {
+      if (!this.attributes || !this.attributes.formSlug) {
+        return;
+      }
+      $.get('/getFormModel/' + this.attributes.formSlug, _.bind(this.resetModel, this));
+    },
+
+    resetModel: function(formDatas) {
+      this.set({
+        formTitle: formDatas.formTitle,
+        formName: formDatas.formName,
+        inputs: formDatas.inputs
+      });
+    }
+
 	});
 	return formModel;
 });
@@ -2238,48 +2236,46 @@ define('views/rootView',[
 
 		template: _.template(rootTemplate),
 
-		events: {
-			'click .j_initThisForm_btn': 'initForms'
-		},
-
 		initialize: function() {
 			this.render();
+			this.initForms();
 		},
 
 		initForms: function() {
 			_.each($('.j_form_wrap', this.$el), function(formEle){
-				var data = $('.j_initThisForm_btn', formEle).data('form-boot');
+				var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
 				var newForm = new formView({
 					el: $(formEle),
-					model: new formModel(JSON.parse(decodeURI(data)))
+					model: new formModel({'formSlug': formSlug})
 				});
 			});
 		},
 
 		render: function() {
-			this.$el.html(this.template());
+			this.$el.html(this.template(this.model.attributes));
 			return this;
 		}
 
 	});
 	return RootView;
 });
-define('models/rootModel',[], function(){
-	var RootModel = Backbone.Model.extend({
-
-	});
-	return RootModel;
+define('models/rootModel',[], function() {
+  var RootModel = Backbone.Model.extend({
+    
+  });
+  return RootModel;
 });
+
 require([
 	'views/rootView', 
 	'models/rootModel', 
 	'templates/rootTemplate'
 	], function(RootView, RootModel, RootTemplate){
-
+	var arr =  ['testForm', 'myForm', 'longForm'];
 	TrApp = window.TrApp || {};
 	TrApp.root = new RootView({
-		el: $('.j-main')
-		// model: new RootModel()
+		el: $('.j-main'),
+		model: new RootModel({'forms': arr })
 	});
 
 });
