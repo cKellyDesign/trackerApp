@@ -1,42 +1,31 @@
 define([
-	'templates/rootTemplate'], function(rootTemplate){
+	'templates/rootTemplate',
+	'views/formView',
+	'models/formModel'], function(rootTemplate, formView, formModel){
 	var RootView = Backbone.View.extend({
-
-		// todo: move into Form View Object
-		charMax: 140,
 
 		template: _.template(rootTemplate),
 
 		events: {
-			'keydown #message': 'checkMessageLength'
+			'click .j_initThisForm_btn': 'initForms'
 		},
 
 		initialize: function() {
 			this.render();
 		},
 
-		setElements: function() {
-			this.messageBox = $('#message');
-			this.charLeft = $('#characterLeft');
-			$(this.charLeft).text('140 characters left');
-		},
-
-		checkMessageLength: function() {
-			var currValLength = $(this.messageBox).val().length;
-
-			if (currValLength >= this.charMax) {
-				$(this.charLeft).text('You have reached the limit.');
-				$(this.messageBox).addClass('red').addClass('disabled');
-			} else {
-				var remainingLength = this.charMax - currValLength;
-				$(this.charLeft).text(remainingLength + ' characters left.');
-				$(this.messageBox).removeClass('disabled').removeClass('red');
-			}
+		initForms: function() {
+			_.each($('.j_form_wrap', this.$el), function(formEle){
+				var data = $('.j_initThisForm_btn', formEle).data('form-boot');
+				var newForm = new formView({
+					el: $(formEle),
+					model: new formModel(JSON.parse(decodeURI(data)))
+				});
+			});
 		},
 
 		render: function() {
-			this.$el.html(this.template(this.model.attributes));
-			this.setElements();
+			this.$el.html(this.template());
 			return this;
 		}
 

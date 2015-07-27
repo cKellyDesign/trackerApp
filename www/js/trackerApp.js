@@ -2091,15 +2091,50 @@ var requirejs, require, define;
 
 define("../node_modules/requirejs/require", function(){});
 
+define('templates/rootTemplate',[], function(){
+	var model = {
+		'formTitle': 'Send Me a Message',
+		'formName': 'testForm',
+		'inputs': [{
+			'slug': 'firstName',
+			'placeholder': 'First Name',
+			'type': 'text'
+		}, {
+			'slug': 'lastName',
+			'placeholder': 'Last Name',
+			'type': 'text'
+		}, {
+			'slug': 'email',
+			'placeholder': 'Email',
+			'type': 'text'
+		},{
+			'slug': 'message',
+			'placeholder': 'Message',
+			'type': 'textarea'
+		}, {
+			'slug': 'submit',
+			'placeholder': 'Send Message Now',
+			'type': 'submit'
+		}]
+	};
+
+	var stringData = encodeURI(JSON.stringify(model));
+	var RootTemplate = '<section class="root_wrap">' +
+		'<div class="j_form_wrap">' +
+			'<button class="j_initThisForm_btn" data-form-boot="' + stringData + '">Click Here to see the testForm</button>' +
+		'</div>' +
+	'</section>';
+	return RootTemplate;
+});
 define('templates/inputTemplate',[], function(){
 	var inputTemplate = '<div class="form-group">' +
-    '<input type="text" class="form-control" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
+    '<input type="text" class="form-control j-input" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
   '</div>';
 	return inputTemplate;
 });
 define('templates/textAreaTemplate',[], function(){
 	var textareaTemplate = '<div class="form-group">' +
-        '<textarea class="form-control" type="<%= field.slug %>" id="message" placeholder="<%= field.placeholder %>" maxlength="140" rows="7"></textarea>' + 
+        '<textarea class="form-control j-textarea" type="<%= field.slug %>" id="message" placeholder="<%= field.placeholder %>" maxlength="140" rows="7"></textarea>' + 
           '<span class="help-block"><p id="characterLeft" class="help-block ">You have reached the limit</p></span>' +
         '</div>';
 	return textareaTemplate;
@@ -2108,12 +2143,12 @@ define('templates/submitBtnTemplate',[], function(){
 	var submitBtnTemplate = '<button type="button" id="submit" name="<%= field.slug %>" class="btn btn-primary pull-right"><%= field.placeholder %></button>';
 	return submitBtnTemplate;
 });
-define('templates/rootTemplate',[
+define('templates/formTemplate',[
 	'./inputTemplate',
 	'./textAreaTemplate',
 	'./submitBtnTemplate'], function(inputTemplate, textAreaTemplate, submitBtnTemplate){
 	
-	var RootTemplate = '<div class="col-md-5">' +
+	var FormTemplate = '<div class="col-md-5">' +
     '<div class="form-area">' +
       '<form name="<%= formName %> role="form"><br style="clear:both">' +
 
@@ -2135,19 +2170,20 @@ define('templates/rootTemplate',[
       '</form>' +
     '</div>' +
   '</div>';
-	return RootTemplate;
+	return FormTemplate;
 });
-define('views/rootView',[
-	'templates/rootTemplate'], function(rootTemplate){
-	var RootView = Backbone.View.extend({
+define('views/formView',[
+	'templates/formTemplate'], function(formTemplate){
+	var FormView = Backbone.View.extend({
 
 		// todo: move into Form View Object
 		charMax: 140,
 
-		template: _.template(rootTemplate),
+		template: _.template(formTemplate),
 
 		events: {
-			'keydown #message': 'checkMessageLength'
+			'keydown #message': 'checkMessageLength',
+			'click #submit': 'sendMessage'
 		},
 
 		initialize: function() {
@@ -2155,6 +2191,8 @@ define('views/rootView',[
 		},
 
 		setElements: function() {
+			this.inputs = $('.j-input', this.$el);
+			this.textareas = $('.j-textarea');
 			this.messageBox = $('#message');
 			this.charLeft = $('#characterLeft');
 			$(this.charLeft).text('140 characters left');
@@ -2173,9 +2211,53 @@ define('views/rootView',[
 			}
 		},
 
+		sendMessage: function(e){
+			e.preventDefault();
+		},
+
 		render: function() {
 			this.$el.html(this.template(this.model.attributes));
 			this.setElements();
+			return this;
+		}
+
+	});
+	return FormView;
+});
+define('models/formModel',[], function(){
+	var formModel = Backbone.Model.extend({
+
+	});
+	return formModel;
+});
+define('views/rootView',[
+	'templates/rootTemplate',
+	'views/formView',
+	'models/formModel'], function(rootTemplate, formView, formModel){
+	var RootView = Backbone.View.extend({
+
+		template: _.template(rootTemplate),
+
+		events: {
+			'click .j_initThisForm_btn': 'initForms'
+		},
+
+		initialize: function() {
+			this.render();
+		},
+
+		initForms: function() {
+			_.each($('.j_form_wrap', this.$el), function(formEle){
+				var data = $('.j_initThisForm_btn', formEle).data('form-boot');
+				var newForm = new formView({
+					el: $(formEle),
+					model: new formModel(JSON.parse(decodeURI(data)))
+				});
+			});
+		},
+
+		render: function() {
+			this.$el.html(this.template());
 			return this;
 		}
 
@@ -2195,36 +2277,11 @@ require([
 	], function(RootView, RootModel, RootTemplate){
 
 	TrApp = window.TrApp || {};
-	console.log("ABOUT TO INIT ROOTVIEW");
 	TrApp.root = new RootView({
-		el: $('.j-main'),
-		model: new RootModel({
-			"formTitle": "Send Me a Message",
-			"formName": "testForm",
-			"inputs": [{
-				"slug": "firstName",
-				"placeholder": "First Name",
-				"type": "text"
-			}, {
-				"slug": "lastName",
-				"placeholder": "Last Name",
-				"type": "text"
-			}, {
-				"slug": "email",
-				"placeholder": "Email",
-				"type": "text"
-			},{
-				"slug": "message",
-				"placeholder": "Message",
-				"type": "textarea"
-			}, {
-				"slug": "submit",
-				"placeholder": "Send Message Now",
-				"type": "submit"
-			}]
-		}),
-		temp: RootTemplate
+		el: $('.j-main')
+		// model: new RootModel()
 	});
+
 });
 define("require.js", function(){});
 
