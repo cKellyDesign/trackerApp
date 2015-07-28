@@ -1,21 +1,10 @@
 require.config({
-	baseUrl: 'init.js',
+	baseUrl: './',
 	deps: ['require.js'],
-	shim: {
-		'jquery': {
-			exports: '$'
-		},
-		'backbone': {
-			deps: ['underscore', 'jquery'],
-			exports: 'Backbone'
-		},
-		'underscore': {
-			exports: '_'
-		}
-	},
+	shim: {},
 	paths: {
-		'jquery': '../components/jQuery/jquery-1.11.3.min',
-		'backbone': '../components/backboneJS/backbone-min',
-		'underscore': '../components/underscoreJS/underscore-min'
+		'views': 'views',
+		'models': 'models',
+		'templates': 'templates'
 	}
 });
