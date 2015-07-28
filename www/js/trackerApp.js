@@ -2201,8 +2201,8 @@ define('views/formView',[
 
       $.ajax({
         type: "POST",
-        url: "/sendMessage/abcd",
-        data: JSON.stringify({ formMessage: messageData }),
+        url: "/newUser",
+        data: JSON.stringify(messageData),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },

@@ -3,9 +3,12 @@ var http = require('http'),
 	express = require('express'),
 	requireJS = require('requirejs'),
 	bodyParser = require('body-parser'),
+	mongoose = require('mongoose'),
 	router = require('./router');
 
 var trackerApp = express();
+
+mongoose.connect('localhost','trackerAppDB');
 
 requireJS.config({
 	nodeRequire: require
@@ -30,4 +33,4 @@ trackerApp.use('/img', express.static(path.join(__dirname, '../www/img')));
 // Listener
 var server = trackerApp.listen(process.env.PORT || trackerApp.get('port'), function(){
 	console.log("Server has been started at " + server.address().port);
-})
+});
