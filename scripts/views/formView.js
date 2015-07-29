@@ -52,7 +52,7 @@ define([
 
       $.ajax({
         type: "POST",
-        url: "/newUser",
+        url: "/collections/" + messageData.firstName,
         data: JSON.stringify(messageData),
         contentType: "application/json; charset=utf-8",
         dataType: "json",

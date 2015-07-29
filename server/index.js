@@ -3,18 +3,23 @@ var http = require('http'),
 	express = require('express'),
 	requireJS = require('requirejs'),
 	bodyParser = require('body-parser'),
-	mongoose = require('mongoose'),
+	mongoskin = require('mongoskin'),
 	router = require('./router');
 
 var trackerApp = express();
-
-mongoose.connect('localhost','trackerAppDB');
 
 requireJS.config({
 	nodeRequire: require
 });
 
 trackerApp.use(bodyParser.json());
+
+var db = mongoskin.db('mongodb://@localhost:27017/trackerApp');
+
+trackerApp.param('collectionName', function(req, res, next, collectionName){
+	req.collection = db.collection(collectionName);
+	return next();
+});
 
 // Set Routes
 router.setRoutes(trackerApp);
