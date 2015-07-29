@@ -1,11 +1,11 @@
 var path = require('path'),
 	_ = require('underscore'),
-	mongoose = require('mongoose'),
-	User = require('./schema/user'),
+	// mongoose = require('mongoose'),
+	// User = require('./schema/user'),
 	formModelHelper = require('./helpers/formsModelHelper');
 
 exports.setRoutes = function(trackerApp) {
-
+	// var router = trackerApp.Router();
 	// mongoose.connect('mongodb://localhost/trackerAppDB');
 
 	trackerApp.get('/', function (req, res){
@@ -43,13 +43,13 @@ exports.setRoutes = function(trackerApp) {
 
 	trackerApp.post('/newUser', function (req, res){
 		console.log('\n\nPOST DETECTED:\n', req.body, '\n\n');
-		var userData = { 
-			name: req.body.name,
-			username: req.body.username,
-			email: req.body.email,
-			phone: req.body.phone
-		}
-		new User(userData).save();
+		// var userData = { 
+		// 	name: req.body.name,
+		// 	username: req.body.username,
+		// 	email: req.body.email,
+		// 	phone: req.body.phone
+		// }
+		// new User(userData).save();
 		res.send(userData);
 		// User.find({ username: req.body.username }, function(err, user){
 		// 	res.send(user);
@@ -58,14 +58,14 @@ exports.setRoutes = function(trackerApp) {
 
 	trackerApp.get('/users', function (req, res) {
 		console.log('\n****GET USERS DETECTED*****\n');
-		User.find({}, function(err, users){
-			if (err) console.log("\n\nERR: ", err, "\n\n"), res.send(err);
-			res.send(users);
-		});
+		// User.find({}, function(err, users){
+		// 	if (err) console.log("\n\nERR: ", err, "\n\n"), res.send(err);
+		// 	res.send(users);
+		// });
 	});
 
-	trackerApp.post('/sendMessage/abcd', function (req, res){
-		// console.log("\n\nSERVER HIT AT SEND MESSAGE ", req.body);
-		res.send(req.body);
-	});
+	// router.post('/sendMessage/abcd', function (req, res){
+	// 	// console.log("\n\nSERVER HIT AT SEND MESSAGE ", req.body);
+	// 	res.send(req.body);
+	// });
 };
