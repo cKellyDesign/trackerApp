@@ -13,7 +13,11 @@ module.exports = [{
 		'slug': 'email',
 		'placeholder': 'Email',
 		'type': 'text'
-	},{
+	}, {
+		'slug': 'username',
+		'placeholder': 'Username',
+		'type': 'text'
+	}, {
 		'slug': 'message',
 		'placeholder': 'Message',
 		'type': 'textarea'
@@ -28,6 +32,10 @@ module.exports = [{
 	'inputs': [{
 		'slug': 'name',
 		'placeholder': 'Your Name',
+		'type': 'text'
+	},{
+		'slug': 'username',
+		'placeholder': 'Username',
 		'type': 'text'
 	},{
 		'slug': 'email',
@@ -48,6 +56,10 @@ module.exports = [{
 	},{
 		'slug': 'lastName',
 		'placeholder': 'Your Last Name',
+		'type': 'text'
+	},{
+		'slug': 'username',
+		'placeholder': 'Username',
 		'type': 'text'
 	},{
 		'slug': 'email',

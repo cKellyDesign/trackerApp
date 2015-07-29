@@ -3,6 +3,7 @@ var http = require('http'),
 	express = require('express'),
 	requireJS = require('requirejs'),
 	bodyParser = require('body-parser'),
+	mongoose = require('mongoose'),
 	router = require('./router');
 
 var trackerApp = express();
@@ -12,6 +13,15 @@ requireJS.config({
 });
 
 trackerApp.use(bodyParser.json());
+mongoose.connection.on('error', console.log);
+mongoose.connect('localhost','trackerAppDB');
+
+// var db = mongoskin.db('mongodb://@localhost:27017/trackerApp');
+
+// trackerApp.param('collectionName', function(req, res, next, collectionName){
+// 	req.collection = db.collection(collectionName);
+// 	return next();
+// });
 
 // Set Routes
 router.setRoutes(trackerApp);
@@ -30,4 +40,4 @@ trackerApp.use('/img', express.static(path.join(__dirname, '../www/img')));
 // Listener
 var server = trackerApp.listen(process.env.PORT || trackerApp.get('port'), function(){
 	console.log("Server has been started at " + server.address().port);
-})
+});
