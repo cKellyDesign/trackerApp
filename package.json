@@ -21,8 +21,7 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-nodeunit": "^0.4.1",
     "grunt-contrib-uglify": "^0.5.1",
-    "mongodb": "^1.4.39",
-    "mongoskin": "^1.4.13",
+    "mongoose": "^4.1.0",
     "requirejs": "^2.1.19",
     "underscore": "^1.8.3"
   },
