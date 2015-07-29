@@ -42,6 +42,7 @@ exports.setRoutes = function(trackerApp) {
 	// });
 
 	trackerApp.post('/newUser', function (req, res){
+		console.log('\n\nPOST DETECTED:\n', req.body, '\n\n');
 		var userData = { 
 			name: req.body.name,
 			username: req.body.username,
@@ -50,8 +51,16 @@ exports.setRoutes = function(trackerApp) {
 		}
 		new User(userData).save();
 		res.send(userData);
-		User.find({ username: req.body.username }, function(err, user){
-			res.send(user);
+		// User.find({ username: req.body.username }, function(err, user){
+		// 	res.send(user);
+		// });
+	});
+
+	trackerApp.get('/users', function (req, res) {
+		console.log('\n****GET USERS DETECTED*****\n');
+		User.find({}, function(err, users){
+			if (err) console.log("\n\nERR: ", err, "\n\n"), res.send(err);
+			res.send(users);
 		});
 	});
 

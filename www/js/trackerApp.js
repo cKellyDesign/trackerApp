@@ -2201,7 +2201,7 @@ define('views/formView',[
 
       $.ajax({
         type: "POST",
-        url: "/collections/" + messageData.firstName,
+        url: "/newUser",
         data: JSON.stringify(messageData),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
