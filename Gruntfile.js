@@ -1,4 +1,7 @@
 module.exports = function(grunt) {
+
+	require('load-grunt-tasks')(grunt); // Predfine Task Dependencies
+
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 
@@ -69,12 +72,6 @@ module.exports = function(grunt) {
 		}
 
 	});
-
-	// Load Task Dependencies
-	grunt.loadNpmTasks('grunt-express-server');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-sass');
-	grunt.loadNpmTasks('grunt-contrib-requirejs');
 
 	// Define Tasks
 	grunt.registerTask('default', ['express:dev', 'sass', 'requirejs:compile', 'watch']);
