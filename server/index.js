@@ -21,7 +21,7 @@ requireJS.config({
 trackerApp.use(bodyParser.json());
 
 // Set Routes
-router.setRoutes(trackerApp);
+router.setRoutes(trackerApp, db);
 
 // Set Configs
 trackerApp.set('port', 8000);
