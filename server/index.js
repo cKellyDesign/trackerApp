@@ -3,7 +3,13 @@ var http = require('http'),
 	express = require('express'),
 	requireJS = require('requirejs'),
 	bodyParser = require('body-parser'),
+	mongoose = require('mongoose'),
 	router = require('./router');
+
+mongoose.connect('mongodb://localhost/test');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connect error:'));
+db.once('open', console.log.bind(console,'\nconnected to mongodb!'));
 
 var trackerApp = express();
 
