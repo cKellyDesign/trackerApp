@@ -6,10 +6,11 @@ var http = require('http'),
 	mongoose = require('mongoose'),
 	router = require('./router');
 
-mongoose.connect('mongodb://localhost/test');
+// Init MongoDB
+mongoose.connect(process.env.DB_PATH);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connect error:'));
-db.once('open', console.log.bind(console,'\nconnected to mongodb!'));
+db.once('open', console.log.bind(console,'\nMongoDB Connected: ', process.env.DB_PATH));
 
 var trackerApp = express();
 

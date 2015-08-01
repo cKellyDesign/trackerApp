@@ -69,10 +69,23 @@ module.exports = function(grunt) {
 					optimize: 'none',
 				}
 			}
+		},
+
+		env: {
+			dev: { // for deving locally
+				NODE_ENV : 'development',
+				SERVER_BASE_PATH : 'http://localhost:8000/',
+				DB_PATH : 'mongodb://localhost/trackerApp'
+			},
+			heroku: { // when deployed to heroku
+				NODE_ENV : 'heroku',
+				SERVER_BASE_PATH: 'http://tracker-apper.herokuapp.com',
+				DB_PATH : ''
+			}
 		}
 
 	});
 
 	// Define Tasks
-	grunt.registerTask('default', ['express:dev', 'sass', 'requirejs:compile', 'watch']);
+	grunt.registerTask('default', ['env:dev', 'express:dev', 'sass', 'requirejs:compile', 'watch']);
 };
