@@ -48,7 +48,7 @@ exports.setRoutes = function(trackerApp, db) {
 	trackerApp.get('/getUser/:username', function (req, res, next){
 		var username = req.params.username;
 		User.find({ username: username }, function(err, user){
-			if (err || user.) {
+			if (err) {
 				res.send(err);
 			} else {
 				res.send(user);
