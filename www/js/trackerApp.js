@@ -2210,12 +2210,14 @@ define('views/formView',[
       _.each($('.form-control', this.$el), function(ele){
         messageData[$(ele).attr('name')] = $(ele).val();
       });
-      // console.log(messageData);
+
+      messageData.name = messageData.name || messageData.firstName + (messageData.lastName ? ' ' + messageData.lastName : '');
+      console.log(messageData.name);
 
       $.ajax({
         type: "POST",
-        url: "/sendMessage/abcd",
-        data: JSON.stringify({ formMessage: messageData }),
+        url: "/newUser",
+        data: JSON.stringify(messageData),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },
@@ -2306,7 +2308,7 @@ require([
   'models/rootModel',
   'templates/rootTemplate'
 ], function(RootView, RootModel, RootTemplate) {
-  var arr = ['testForm', 'myForm', 'longForm'];
+  var arr = ['usernameForm', 'myForm', 'longForm'];
   TrApp = window.TrApp || {};
   TrApp.root = new RootView({
     el: $('.j-main'),
