@@ -1,7 +1,11 @@
 module.exports = [{
-	'formTitle': 'Send Me a Message',
-	'formName': 'testForm',
+	'formTitle': 'New User Form',
+	'formName': 'usernameForm',
 	'inputs': [{
+		'slug': 'username',
+		'placeholder': 'Username',
+		'type': 'text'
+	}, {
 		'slug': 'firstName',
 		'placeholder': 'First Name',
 		'type': 'text'
@@ -13,11 +17,15 @@ module.exports = [{
 		'slug': 'email',
 		'placeholder': 'Email',
 		'type': 'text'
-	},{
-		'slug': 'message',
-		'placeholder': 'Message',
-		'type': 'textarea'
 	}, {
+		'slug': 'phone',
+		'placeholder': 'Phone Number',
+		'type': 'text'
+	}, {
+	// 	'slug': 'message',
+	// 	'placeholder': 'Message',
+	// 	'type': 'textarea'
+	// }, {
 		'slug': 'submit',
 		'placeholder': 'Send Message Now',
 		'type': 'submit'

@@ -3,7 +3,7 @@ require([
   'models/rootModel',
   'templates/rootTemplate'
 ], function(RootView, RootModel, RootTemplate) {
-  var arr = ['testForm', 'myForm', 'longForm'];
+  var arr = ['usernameForm', 'myForm', 'longForm'];
   TrApp = window.TrApp || {};
   TrApp.root = new RootView({
     el: $('.j-main'),
