@@ -2159,7 +2159,7 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 		},
 		onSubmitLogin: function(e) {
 			e.preventDefault();
-			var url = '/loginSubmit';
+			var url = '/submitLogin';
 			this.username = $('#username').val();
 			this.password = $('#password').val();
 			

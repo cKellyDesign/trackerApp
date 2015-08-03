@@ -15,9 +15,23 @@ exports.setRoutes = function(trackerApp, db) {
 		res.send(_.findWhere(formModelHelper, { 'formName': req.params.formSlug }));
 	});
 
-	trackerApp.post('/sendMessage/abcd', function (req, res){
-		// console.log("\n\nSERVER HIT AT SEND MESSAGE ", req.body);
-		res.send(req.body);
+	trackerApp.post('/submitLogin', function (req, res, next){
+		var userData = {
+			username: req.body.username,
+			password: req.body.password
+		};
+
+		User.findOne({ username: userData.username }, function(err, user){
+			if (err || !user) {
+				res.json(403, { message: 'Username Not Found' });
+				return;
+			} else if (user.password !== userData.password) {
+				res.json(403, { message: 'Incorrect Password' });
+				return;
+			}
+			res.json(200, { username: user.username });
+			next();
+		});
 	});
 
 	trackerApp.post('/newUser', function (req, res, next){
@@ -30,12 +44,7 @@ exports.setRoutes = function(trackerApp, db) {
 		};
 		new User(userData).save();
 		
-		User.find({ username: userData.username }, function(err, user){
-			if (err) res.send(err);
-			console.log("USER SAVED ", userData);
-			res.send(userData);
-			next();
-		});
+		
 	});
 
 	trackerApp.get('/users', function(req, res, next){
