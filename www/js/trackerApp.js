@@ -2181,6 +2181,7 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 			this.postForm(url);
 		},
 		postForm: function(url) {
+			var self = this;
 			var postData = { username: this.username, password: this.password };
 			$.ajax({
         type: "POST",
@@ -2189,14 +2190,19 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },
-        failure: function(err) { console.log("FAIL!! Err - ", err); }
+        error: function(err) { self.onPostFail(err); }
       });
 		},
 		onPostSuccess: function(){
 
 		},
-		onPostFail: function() {
-
+		onPostFail: function(err) {
+			if (err.status === 404) {
+				$('#username').attr('placeholder', err.responseJSON).val('');
+				$('#password').val('');
+			} else if (err.status === 403) {
+				$('#password').attr('placeholder', err.responseJSON).val('');
+			}
 		},
 		onToggleFields: function(e) {
 			e.preventDefault();

@@ -23,10 +23,10 @@ exports.setRoutes = function(trackerApp, db) {
 
 		User.findOne({ username: userData.username }, function(err, user){
 			if (err || !user) {
-				res.json(403, { message: 'Username Not Found' });
+				res.json(404, 'Username Not Found' );
 				return;
 			} else if (user.password !== userData.password) {
-				res.json(403, { message: 'Incorrect Password' });
+				res.json(403, 'Incorrect Password' );
 				return;
 			}
 			res.json(200, { username: user.username });
