@@ -42,7 +42,20 @@ exports.setRoutes = function(trackerApp, db) {
 			// email: req.body.email,
 			// phone: req.body.phone
 		};
-		new User(userData).save();
+		User.findOne({ username: userData.username }, function(err, user){
+			if (err) {
+				res.json(500, 'Something Went Wrong...');
+				return;
+			} else if (!user) {
+				new User(userData).save();
+				res.json(200, { username: userData.username });
+				next();
+				return;
+			} else {
+				res.json(404, 'Username Unavailable');
+			}
+		});
+		
 		
 		
 	});

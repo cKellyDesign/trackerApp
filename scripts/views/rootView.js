@@ -16,15 +16,20 @@ define([
     },
 
     subscribeEvents: function() {
-      TrApp.EventHub.on('login:success', this.initUserActionView, this);
+      TrApp.EventHub.on('login:success', this.setUser, this);
     },
 
     initLogin: function() {
       var loginView = new LoginView({ el:$('#loginViewEl') });
     },
 
-    initUserActionView: function(data) {
-      console.log("event connected; DATA: ", data);
+    setUser: function(data) {
+      this.model.set('currentUser', data.username);
+      // this.initUserActions();
+    },
+
+    initUserActions: function() {
+      
     },
 
     initForms: function() {

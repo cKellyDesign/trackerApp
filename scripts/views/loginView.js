@@ -60,6 +60,7 @@ define(['templates/loginTemplate'], function(loginTemplate){
 			if (err.status === 404) {
 				$('#username').attr('placeholder', err.responseJSON).val('');
 				$('#password').val('');
+				$('#passwordRe').val('');
 			} else if (err.status === 403) {
 				$('#password').attr('placeholder', err.responseJSON).val('');
 			}
