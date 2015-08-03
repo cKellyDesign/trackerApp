@@ -2134,26 +2134,29 @@ define('templates/loginTemplate',[], function(){
 		'<div class="form-group">' +
 			'<input type="password" class="form-control hidden" id="passwordRe" name="passwordrepeat" placeholder="Repeat Password" required>' +
 		'</div>' +
-		'<button type="button" id="submit" name="submit" class="btn btn-primary pull-right">Log In</button>' +
-		'<button type="button" id="newUser" name="newuser" class="btn btn-primary pull-left">New User</button>' + 
-		'<button type="button" id="existingUser" name="existinguser" class="btn btn-primary pull-left center hidden">Existing User</buton>' +
-		'<button type="button" id="register" name="register" class="btn btn-primary pull-right center hidden">Register</buton>' +
+		'<button type="button" id="submit" name="submit" class="btn btn-primary pull-left">Log In</button>' +
+		'<button type="button" id="newUser" name="newuser" class="btn btn-primary pull-right">New User</button>' + 
+		'<button type="button" id="existingUser" name="existinguser" class="btn btn-primary pull-right center hidden">Existing User</buton>' +
+		'<button type="button" id="register" name="register" class="btn btn-primary pull-left center hidden">Register</buton>' +
 
 	'</form>';
 	return loginTemplate;
 });
 define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 	var LoginView = Backbone.View.extend({
-		// template: _.template(loginTemplate),
+
 		username: '',
 		password: '',
+
 		template: loginTemplate,
+
 		events: {
 			'click #submit' : 'onSubmitLogin',
 			'click #register' : 'onRegisterNewUser',
 			'click #newUser' : 'onToggleFields',
-			'click #existingUser' : 'onToggleFields'
+			'click #existingUser' : 'onToggleFields',
 		},
+
 		initialize: function() {
 			this.render();	
 		},
@@ -2189,12 +2192,13 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
         data: JSON.stringify(postData),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },
+        success: function(data) { self.onPostSuccess(data); },
         error: function(err) { self.onPostFail(err); }
       });
 		},
-		onPostSuccess: function(){
-
+		onPostSuccess: function(data){
+			this.$el.html('');
+			TrApp.EventHub.trigger('login:success', data);
 		},
 		onPostFail: function(err) {
 			if (err.status === 404) {
@@ -2212,6 +2216,7 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 			$('#newUser').toggleClass('hidden');
 			$('#passwordRe').toggleClass('hidden').val('');
 			$('#username').val('');
+			$('#password').val('');
 			$('#loginTitle').toggleClass('hidden');
 			$('#registerTitle').toggleClass('hidden');
 		},
@@ -2381,11 +2386,20 @@ define('views/rootView',[
     initialize: function() {
       this.render();
       // this.initForms();
+      this.subscribeEvents();
       this.initLogin();
+    },
+
+    subscribeEvents: function() {
+      TrApp.EventHub.on('login:success', this.initUserActionView, this);
     },
 
     initLogin: function() {
       var loginView = new LoginView({ el:$('#loginViewEl') });
+    },
+
+    initUserActionView: function(data) {
+      console.log("event connected; DATA: ", data);
     },
 
     initForms: function() {
@@ -2423,6 +2437,8 @@ require([
 ], function(RootView, RootModel, RootTemplate) {
   var arr = ['usernameForm', 'myForm', 'longForm'];
   TrApp = window.TrApp || {};
+  TrApp.EventHub = {};
+  _.extend(TrApp.EventHub, Backbone.Events);
   TrApp.root = new RootView({
     el: $('.j-main'),
     model: new RootModel({

@@ -11,10 +11,10 @@ define([], function(){
 		'<div class="form-group">' +
 			'<input type="password" class="form-control hidden" id="passwordRe" name="passwordrepeat" placeholder="Repeat Password" required>' +
 		'</div>' +
-		'<button type="button" id="submit" name="submit" class="btn btn-primary pull-right">Log In</button>' +
-		'<button type="button" id="newUser" name="newuser" class="btn btn-primary pull-left">New User</button>' + 
-		'<button type="button" id="existingUser" name="existinguser" class="btn btn-primary pull-left center hidden">Existing User</buton>' +
-		'<button type="button" id="register" name="register" class="btn btn-primary pull-right center hidden">Register</buton>' +
+		'<button type="button" id="submit" name="submit" class="btn btn-primary pull-left">Log In</button>' +
+		'<button type="button" id="newUser" name="newuser" class="btn btn-primary pull-right">New User</button>' + 
+		'<button type="button" id="existingUser" name="existinguser" class="btn btn-primary pull-right center hidden">Existing User</buton>' +
+		'<button type="button" id="register" name="register" class="btn btn-primary pull-left center hidden">Register</buton>' +
 
 	'</form>';
 	return loginTemplate;

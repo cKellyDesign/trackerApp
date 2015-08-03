@@ -11,11 +11,20 @@ define([
     initialize: function() {
       this.render();
       // this.initForms();
+      this.subscribeEvents();
       this.initLogin();
+    },
+
+    subscribeEvents: function() {
+      TrApp.EventHub.on('login:success', this.initUserActionView, this);
     },
 
     initLogin: function() {
       var loginView = new LoginView({ el:$('#loginViewEl') });
+    },
+
+    initUserActionView: function(data) {
+      console.log("event connected; DATA: ", data);
     },
 
     initForms: function() {

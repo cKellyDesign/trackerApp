@@ -1,15 +1,18 @@
 define(['templates/loginTemplate'], function(loginTemplate){
 	var LoginView = Backbone.View.extend({
-		// template: _.template(loginTemplate),
+
 		username: '',
 		password: '',
+
 		template: loginTemplate,
+
 		events: {
 			'click #submit' : 'onSubmitLogin',
 			'click #register' : 'onRegisterNewUser',
 			'click #newUser' : 'onToggleFields',
-			'click #existingUser' : 'onToggleFields'
+			'click #existingUser' : 'onToggleFields',
 		},
+
 		initialize: function() {
 			this.render();	
 		},
@@ -45,12 +48,13 @@ define(['templates/loginTemplate'], function(loginTemplate){
         data: JSON.stringify(postData),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },
+        success: function(data) { self.onPostSuccess(data); },
         error: function(err) { self.onPostFail(err); }
       });
 		},
-		onPostSuccess: function(){
-
+		onPostSuccess: function(data){
+			this.$el.html('');
+			TrApp.EventHub.trigger('login:success', data);
 		},
 		onPostFail: function(err) {
 			if (err.status === 404) {
@@ -68,6 +72,7 @@ define(['templates/loginTemplate'], function(loginTemplate){
 			$('#newUser').toggleClass('hidden');
 			$('#passwordRe').toggleClass('hidden').val('');
 			$('#username').val('');
+			$('#password').val('');
 			$('#loginTitle').toggleClass('hidden');
 			$('#registerTitle').toggleClass('hidden');
 		},
