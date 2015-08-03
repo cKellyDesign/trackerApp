@@ -15,26 +15,49 @@ exports.setRoutes = function(trackerApp, db) {
 		res.send(_.findWhere(formModelHelper, { 'formName': req.params.formSlug }));
 	});
 
-	trackerApp.post('/sendMessage/abcd', function (req, res){
-		// console.log("\n\nSERVER HIT AT SEND MESSAGE ", req.body);
-		res.send(req.body);
+	trackerApp.post('/submitLogin', function (req, res, next){
+		var userData = {
+			username: req.body.username,
+			password: req.body.password
+		};
+
+		User.findOne({ username: userData.username }, function(err, user){
+			if (err || !user) {
+				res.json(404, 'Username Not Found' );
+				return;
+			} else if (user.password !== userData.password) {
+				res.json(403, 'Incorrect Password' );
+				return;
+			}
+			res.json(200, { username: user.username });
+			next();
+		});
 	});
 
 	trackerApp.post('/newUser', function (req, res, next){
 		var userData = {
 			username: req.body.username,
-			name: req.body.name,
-			email: req.body.email,
-			phone: req.body.phone
+			password: req.body.password
+			// name: req.body.name,
+			// email: req.body.email,
+			// phone: req.body.phone
 		};
-		new User(userData).save();
-		
-		User.find({ username: userData.username }, function(err, user){
-			if (err) res.send(err);
-			console.log("USER SAVED ", userData);
-			res.send(userData);
-			next();
+		User.findOne({ username: userData.username }, function(err, user){
+			if (err) {
+				res.json(500, 'Something Went Wrong...');
+				return;
+			} else if (!user) {
+				new User(userData).save();
+				res.json(200, { username: userData.username });
+				next();
+				return;
+			} else {
+				res.json(404, 'Username Unavailable');
+			}
 		});
+		
+		
+		
 	});
 
 	trackerApp.get('/users', function(req, res, next){
