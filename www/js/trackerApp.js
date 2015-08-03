@@ -2105,14 +2105,84 @@ var requirejs, require, define;
 define("../node_modules/requirejs/require", function(){});
 
 define('templates/rootTemplate',[], function(){
-	var RootTemplate = '<section class="root_wrap">' +
-		'<% _.each(forms, function(formSlug) { %>' +
-			'<div class="j_form_wrap form-group">' +
-				'<button class="j_initThisForm_btn btn btn-primary disabled" data-form-slug="<%= formSlug %>">Click Here to see <%= formSlug %></button>' +
-			'</div>' +
-		'<% }); %>' +
-	'</section>';
+	var RootTemplate = '<main class="root_wrap">' +
+
+		'<section id="loginViewEl" class="form-area"></section>' +
+		// Add / Update User View
+		// Add Post View
+		// View Post View
+		// Post List View
+
+		// '<% _.each(forms, function(formSlug) { %>' +
+		// 	'<div class="j_form_wrap form-group">' +
+		// 		'<button class="j_initThisForm_btn btn btn-primary disabled" data-form-slug="<%= formSlug %>">Click Here to see <%= formSlug %></button>' +
+		// 	'</div>' +
+		// '<% }); %>' +
+	'</main>';
 	return RootTemplate;
+});
+define('templates/loginTemplate',[], function(){
+	var loginTemplate = '<form role="form">' +
+		'<h3 style="margin-bottom: 25px; text-align: center;" id="loginTitle">Log In</h3>' +
+		'<h3 style="margin-bottom: 25px; text-align: center;" id="registerTitle" class="hidden">New User</h3>' +
+		'<div class="form-group">' +
+			'<input type="text" class="form-control" id="username" name="username" placeholder="Username" required>' +
+		'</div>' +
+		'<div class="form-group">' +
+			'<input type="password" class="form-control" id="password" name="password" placeholder="Password" required>' +
+		'</div>' +
+		'<div class="form-group">' +
+			'<input type="password" class="form-control hidden" id="passwordRe" name="passwordrepeat" placeholder="Repeat Password" required>' +
+		'</div>' +
+		'<button type="button" id="submit" name="submit" class="btn btn-primary pull-right">Log In</button>' +
+		'<button type="button" id="newUser" name="newuser" class="btn btn-primary pull-left">New User</button>' + 
+		'<button type="button" id="existingUser" name="existinguser" class="btn btn-primary pull-left center hidden">Existing User</buton>' +
+		'<button type="button" id="register" name="register" class="btn btn-primary pull-right center hidden">Register</buton>' +
+
+	'</form>';
+	return loginTemplate;
+});
+define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
+	var LoginView = Backbone.View.extend({
+		// template: _.template(loginTemplate),
+		template: loginTemplate,
+		events: {
+			'click #submit' : 'onSubmitLogin',
+			'click #register' : 'onRegisterNewUser',
+			'click #newUser' : 'onToggleFields',
+			'click #existingUser' : 'onToggleFields'
+		},
+		initialize: function() {
+			this.render();	
+		},
+		onSubmitLogin: function(e) {
+			e.preventDefault();
+
+		},
+		onRegisterNewUser: function(e) {
+
+		},
+		onLoginSuccess: function(){
+
+		},
+		onLoginFail: function() {
+
+		},
+		onToggleFields: function(e) {
+			e.preventDefault();
+			$('#existingUser').toggleClass('hidden');
+			$('#register').toggleClass('hidden');
+			$('#submit').toggleClass('hidden');
+			$('#newUser').toggleClass('hidden');
+			$('#passwordRe').toggleClass('hidden');
+			$('#loginTitle').toggleClass('hidden');
+			$('#registerTitle').toggleClass('hidden');
+		},
+		render: function() {
+			this.$el.html(this.template);
+		}
+	});
+	return LoginView;
 });
 define('templates/inputTemplate',[], function(){
 	var inputTemplate = '<div class="form-group">' +
@@ -2261,16 +2331,22 @@ define('models/formModel',[], function() {
 
 define('views/rootView',[
   'templates/rootTemplate',
+  'views/loginView',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, formView, formModel) {
+], function(rootTemplate, LoginView, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     template: _.template(rootTemplate),
 
     initialize: function() {
       this.render();
-      this.initForms();
+      // this.initForms();
+      this.initLogin();
+    },
+
+    initLogin: function() {
+      var loginView = new LoginView({ el:$('#loginViewEl') });
     },
 
     initForms: function() {
