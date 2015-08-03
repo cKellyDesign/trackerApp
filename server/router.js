@@ -23,9 +23,10 @@ exports.setRoutes = function(trackerApp, db) {
 	trackerApp.post('/newUser', function (req, res, next){
 		var userData = {
 			username: req.body.username,
-			name: req.body.name,
-			email: req.body.email,
-			phone: req.body.phone
+			password: req.body.password
+			// name: req.body.name,
+			// email: req.body.email,
+			// phone: req.body.phone
 		};
 		new User(userData).save();
 		
