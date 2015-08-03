@@ -16,12 +16,24 @@ define(['templates/loginTemplate'], function(loginTemplate){
 
 		},
 		onRegisterNewUser: function(e) {
+			e.preventDefault();
 
 		},
-		onLoginSuccess: function(){
+		postForm: function(url, data) {
+			$.ajax({
+        type: "POST",
+        url: url,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },
+        failure: function(err) { console.log("FAIL!! Err - ", err); }
+      });
+		},
+		onPostSuccess: function(){
 
 		},
-		onLoginFail: function() {
+		onPostFail: function() {
 
 		},
 		onToggleFields: function(e) {
