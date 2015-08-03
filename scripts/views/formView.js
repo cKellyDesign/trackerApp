@@ -48,12 +48,14 @@ define([
       _.each($('.form-control', this.$el), function(ele){
         messageData[$(ele).attr('name')] = $(ele).val();
       });
-      // console.log(messageData);
+
+      messageData.name = messageData.name || messageData.firstName + (messageData.lastName ? ' ' + messageData.lastName : '');
+      console.log(messageData.name);
 
       $.ajax({
         type: "POST",
-        url: "/sendMessage/abcd",
-        data: JSON.stringify({ formMessage: messageData }),
+        url: "/newUser",
+        data: JSON.stringify(messageData),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(data) { console.log("SUCCESS!! DATA SENT - ", data); },

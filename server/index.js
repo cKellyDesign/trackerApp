@@ -3,7 +3,14 @@ var http = require('http'),
 	express = require('express'),
 	requireJS = require('requirejs'),
 	bodyParser = require('body-parser'),
+	mongoose = require('mongoose'),
 	router = require('./router');
+
+// Init MongoDB
+mongoose.connect(process.env.DB_PATH);
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connect error:'));
+db.once('open', console.log.bind(console,'\nMongoDB Connected: ', process.env.DB_PATH));
 
 var trackerApp = express();
 
@@ -14,7 +21,7 @@ requireJS.config({
 trackerApp.use(bodyParser.json());
 
 // Set Routes
-router.setRoutes(trackerApp);
+router.setRoutes(trackerApp, db);
 
 // Set Configs
 trackerApp.set('port', 8000);

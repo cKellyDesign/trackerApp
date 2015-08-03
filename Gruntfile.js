@@ -1,4 +1,7 @@
 module.exports = function(grunt) {
+
+	require('load-grunt-tasks')(grunt); // Predfine Task Dependencies
+
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 
@@ -66,16 +69,23 @@ module.exports = function(grunt) {
 					optimize: 'none',
 				}
 			}
+		},
+
+		env: {
+			dev: { // for deving locally
+				NODE_ENV : 'development',
+				SERVER_BASE_PATH : 'http://localhost:8000/',
+				DB_PATH : 'mongodb://localhost/trackerApp'
+			},
+			heroku: { // when deployed to heroku
+				NODE_ENV : 'heroku',
+				SERVER_BASE_PATH: 'http://tracker-apper.herokuapp.com',
+				DB_PATH : ''
+			}
 		}
 
 	});
 
-	// Load Task Dependencies
-	grunt.loadNpmTasks('grunt-express-server');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-sass');
-	grunt.loadNpmTasks('grunt-contrib-requirejs');
-
 	// Define Tasks
-	grunt.registerTask('default', ['express:dev', 'sass', 'requirejs:compile', 'watch']);
+	grunt.registerTask('default', ['env:dev', 'express:dev', 'sass', 'requirejs:compile', 'watch']);
 };
