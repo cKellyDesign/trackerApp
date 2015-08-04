@@ -3,80 +3,26 @@ var path = require('path'),
 	mongoose = require('mongoose'),
 	User = require('./schema/user'),
 	formModelHelper = require('./helpers/formsModelHelper'),
+	newUserHandler = require('./handlers/newUser')(User),
+	loginHandler = require('./handlers/userLogin')(User),
+	listUsers = require('./handlers/listUsers')(User),
+	getUser = require('./handlers/getUser')(User),
 	isDev = process.env.NODE_ENV === 'development';
 
 exports.setRoutes = function(trackerApp, db) {
 
-	trackerApp.get('/', function (req, res){
+	trackerApp.get('/', function (req, res, next) {
 		res.sendFile(path.join(__dirname + '/../www/index.html'));
 	});
 
-	trackerApp.get('/getFormModel/:formSlug', function (req, res){
+	trackerApp.get('/getFormModel/:formSlug', function (req, res, next) {
 		res.send(_.findWhere(formModelHelper, { 'formName': req.params.formSlug }));
+		next();
 	});
 
-	trackerApp.post('/submitLogin', function (req, res, next){
-		var userData = {
-			username: req.body.username,
-			password: req.body.password
-		};
+	trackerApp.post('/submitLogin', loginHandler);
+	trackerApp.post('/newUser', newUserHandler);
 
-		User.findOne({ username: userData.username }, function(err, user){
-			if (err || !user) {
-				res.json(404, 'Username Not Found' );
-				return;
-			} else if (user.password !== userData.password) {
-				res.json(403, 'Incorrect Password' );
-				return;
-			}
-			res.json(200, { username: user.username });
-			next();
-		});
-	});
-
-	trackerApp.post('/newUser', function (req, res, next){
-		var userData = {
-			username: req.body.username,
-			password: req.body.password
-			// name: req.body.name,
-			// email: req.body.email,
-			// phone: req.body.phone
-		};
-		User.findOne({ username: userData.username }, function(err, user){
-			if (err) {
-				res.json(500, 'Something Went Wrong...');
-				return;
-			} else if (!user) {
-				new User(userData).save();
-				res.json(200, { username: userData.username });
-				next();
-				return;
-			} else {
-				res.json(404, 'Username Unavailable');
-			}
-		});
-		
-		
-		
-	});
-
-	trackerApp.get('/users', function(req, res, next){
-		User.find({}, function(err, users){
-			if (err) res.send(err);
-			res.send(users);
-			next();
-		});
-	});
-
-	trackerApp.get('/getUser/:username', function (req, res, next){
-		var username = req.params.username;
-		User.find({ username: username }, function(err, user){
-			if (err) {
-				res.send(err);
-			} else {
-				res.send(user);
-			}
-			next();
-		});
-	});
+	trackerApp.get('/users', listUsers);
+	trackerApp.get('/getUser/:username', getUser);
 };
