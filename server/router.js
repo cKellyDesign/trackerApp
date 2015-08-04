@@ -3,17 +3,16 @@ var path = require('path'),
 	mongoose = require('mongoose'),
 	User = require('./schema/user'),
 	formModelHelper = require('./helpers/formsModelHelper'),
-	newUserHandler = require('./handlers/newUser'),
-	loginHandler = require('./handlers/userLogin'),
-	listUsers = require('./handlers/listUsers'),
-	getUser = require('./handlers/getUser'),
+	newUserHandler = require('./handlers/newUser')(User),
+	loginHandler = require('./handlers/userLogin')(User),
+	listUsers = require('./handlers/listUsers')(User),
+	getUser = require('./handlers/getUser')(User),
 	isDev = process.env.NODE_ENV === 'development';
 
 exports.setRoutes = function(trackerApp, db) {
 
 	trackerApp.get('/', function (req, res, next) {
 		res.sendFile(path.join(__dirname + '/../www/index.html'));
-		next();
 	});
 
 	trackerApp.get('/getFormModel/:formSlug', function (req, res, next) {
