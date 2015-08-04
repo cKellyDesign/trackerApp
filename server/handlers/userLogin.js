@@ -19,4 +19,4 @@ module.exports = function userLogin (req, res, next){
 		res.json(200, { username: user.username });
 		next();
 	});
-});
+};
