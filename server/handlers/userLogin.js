@@ -16,7 +16,7 @@ module.exports = function init (User){
 				res.json(403, 'Incorrect Password' );
 				return;
 			}
-			res.json(200, { username: user.username });
+			res.status(200).send({ username: user.username, forms: user.forms });
 			next();
 		});
 	};
