@@ -1,9 +1,10 @@
 define([
   'templates/rootTemplate',
   'views/loginView',
+  'model/loginModel',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, LoginView, formView, formModel) {
+], function(rootTemplate, LoginView, loginModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     template: _.template(rootTemplate),
@@ -20,7 +21,10 @@ define([
     },
 
     initLogin: function() {
-      var loginView = new LoginView({ el:$('#loginViewEl') });
+      var loginView = new LoginView({ 
+        el:$('#loginViewEl'),
+        model: new LoginModel()
+      });
     },
 
     setUser: function(data) {
