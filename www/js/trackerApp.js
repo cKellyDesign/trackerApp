@@ -2144,30 +2144,38 @@ define('templates/submitBtnTemplate',[], function(){
 	var submitBtnTemplate = '<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>';
 	return submitBtnTemplate;
 });
-define('templates/loginTemplate',[
+define('templates/formLoop',[
 	'./inputTemplate',
 	'./passwordTemplate',
 	'./textAreaTemplate',
 	'./submitBtnTemplate'
 	], function(inputTemplate, passwordTemplate, textAreaTemplate, submitBtnTemplate){
 
+	var formLoop = '<% _.each(inputs, function(field) { %>' + 
+		
+  	'<% if (field.type === "text") { %>' +
+    		inputTemplate +
+  	'<% } else if (field.type === "password") { %>' +
+  			passwordTemplate +
+    '<% } else if (field.type === "textarea") { %>' +
+    		textAreaTemplate +
+		'<% } else if (field.type === "submit") { %>' +
+    		submitBtnTemplate +
+  	'<% } %>' + 
+
+  '<% }); %>';
+
+	return formLoop;
+});
+define('templates/loginTemplate',[
+	'./formLoop'
+	], function(formLoop){
+
 	var loginTemplate = '<form role="form">' +
 
 		'<h3 style="margin-bottom: 25px; text-align: center;"><%= formTitle %></h3>' +
 
-    '<% _.each(inputs, function(field) { %>' + 
-			
-    	'<% if (field.type === "text") { %>' +
-      		inputTemplate +
-    	'<% } else if (field.type === "password") { %>' +
-    			passwordTemplate +
-      '<% } else if (field.type === "textarea") { %>' +
-      		textAreaTemplate +
-  		'<% } else if (field.type === "submit") { %>' +
-      		submitBtnTemplate +
-    	'<% } %>' + 
-
-    '<% }); %>' +
+    formLoop +
 
 	'</form>';
 	return loginTemplate;
