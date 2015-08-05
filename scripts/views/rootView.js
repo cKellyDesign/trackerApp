@@ -15,7 +15,7 @@ define([
     initialize: function() {
       this.subscribeEvents();
       this.render();
-      this.user = this.getCookie("username");
+      this.user = TrApp.getCookie("username");
       if ( this.user ) {
         this.setUser({ username: this.user });
       } else {
@@ -76,18 +76,7 @@ define([
 
     render: function() {
       this.$el.html(this.template(this.model.attributes));
-    },
-
-    getCookie: function(cname){
-      var name = cname + "="
-      var ca = document.cookie.split(';');
-      for(var i=0; i<ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0)==' ') c = c.substring(1);
-          if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
-      }
-      return "";
-    },
+    }
 
   });
   return RootView;

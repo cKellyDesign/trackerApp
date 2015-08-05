@@ -2515,7 +2515,7 @@ define('views/rootView',[
     initialize: function() {
       this.subscribeEvents();
       this.render();
-      this.user = this.getCookie("username");
+      this.user = TrApp.getCookie("username");
       if ( this.user ) {
         this.setUser({ username: this.user });
       } else {
@@ -2576,18 +2576,7 @@ define('views/rootView',[
 
     render: function() {
       this.$el.html(this.template(this.model.attributes));
-    },
-
-    getCookie: function(cname){
-      var name = cname + "="
-      var ca = document.cookie.split(';');
-      for(var i=0; i<ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0)==' ') c = c.substring(1);
-          if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
-      }
-      return "";
-    },
+    }
 
   });
   return RootView;
@@ -2600,19 +2589,49 @@ define('models/rootModel',[], function() {
   return RootModel;
 });
 
+define('TrAppUtils',[], function(){
+
+	function getCookie (cname) {
+    var name = cname + "="
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return null;
+  }
+	
+  function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+	}
+
+	return {
+		'getCookie': getCookie,
+		'setCookie': setCookie
+	};
+});
 require([
   'views/rootView',
   'models/rootModel',
-  'templates/rootTemplate'
-], function(RootView, RootModel, RootTemplate) {
-  var arr = ['usernameForm', 'myForm', 'longForm'];
-  TrApp = window.TrApp || {};
+  'templates/rootTemplate',
+  './TrAppUtils'
+], function(RootView, RootModel, RootTemplate, TrAppUtils) {
+
+  TrApp = window.TrApp || {
+    'getCookie': TrAppUtils.getCookie,
+    'setCookie': TrAppUtils.setCookie
+  };
+
   TrApp.EventHub = {};
   _.extend(TrApp.EventHub, Backbone.Events);
+
   TrApp.root = new RootView({
     el: $('.j-main'),
     model: new RootModel({
-      'forms': arr,
       'currentUser': null
     })
   });
