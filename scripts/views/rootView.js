@@ -1,10 +1,10 @@
 define([
   'templates/rootTemplate',
   'views/loginView',
-  'model/loginModel',
+  'models/loginModel',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, LoginView, loginModel, formView, formModel) {
+], function(rootTemplate, LoginView, LoginModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     template: _.template(rootTemplate),

@@ -3,23 +3,25 @@ define([], function(){
 		defaults: {
 			'formName' : 'logIn',
 			'formTitle' : 'Log In',
-			'fields' : [{
+			'inputs' : [{
 				'slug' : 'username',
 				'placeholder' : 'Username',
 				'type' : 'text'
 			}, {
 				'slug' : 'password',
 				'placeholder' : 'Password',
-				'type' : 'text'
+				'type' : 'password'
 			}, {
 				'slug' : 'logIn',
 				'placeholder' : 'Log In',
-				'type' : 'submit'
+				'type' : 'submit',
+				'classes' : 'pull-left'
 			}, {
 				'slug' : 'newUser',
 				'placeholder' : 'New User',
-				'type' : 'submit'
-			}];
+				'type' : 'submit',
+				'classes' : 'pull-right'
+			}]
 		}
 	});
 	return LoginModel;

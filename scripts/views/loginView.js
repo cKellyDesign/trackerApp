@@ -4,7 +4,7 @@ define(['templates/loginTemplate'], function(loginTemplate){
 		username: '',
 		password: '',
 
-		template: loginTemplate,
+		template: _.template(loginTemplate),
 
 		events: {
 			'click #submit' : 'onSubmitLogin',
@@ -14,7 +14,8 @@ define(['templates/loginTemplate'], function(loginTemplate){
 		},
 
 		initialize: function() {
-			this.render();	
+			this.render();
+			this.model.on('change reset', this.render, this);
 		},
 		onSubmitLogin: function(e) {
 			e.preventDefault();
@@ -67,18 +68,21 @@ define(['templates/loginTemplate'], function(loginTemplate){
 		},
 		onToggleFields: function(e) {
 			e.preventDefault();
-			$('#existingUser').toggleClass('hidden');
-			$('#register').toggleClass('hidden');
-			$('#submit').toggleClass('hidden');
-			$('#newUser').toggleClass('hidden');
-			$('#passwordRe').toggleClass('hidden').val('');
-			$('#username').val('');
-			$('#password').val('');
-			$('#loginTitle').toggleClass('hidden');
-			$('#registerTitle').toggleClass('hidden');
+			var theseInputs = _.clone(this.model.get('inputs'));
+			var isLogin = theseInputs.length === 4; 
+
+			if ( isLogin ) {
+				theseInputs[3] = { 'slug':'existingUser', 'placeholder':'Existing User', 'type': 'submit', 'classes': 'pull-right' };
+				theseInputs[2] = { 'slug':'register', 'placeholder':'Register', 'type': 'submit', 'classes': 'pull-left' };
+				theseInputs.splice(2, 0, { 'slug' : 'passwordRe', 'placeholder' : 'Retype Password', 'type' : 'password' });
+				this.model.set('formTitle', 'New User');
+				this.model.set('inputs', theseInputs);
+			} else {
+				this.model.clear({ silent: true }).set(this.model.defaults);
+			}
 		},
 		render: function() {
-			this.$el.html(this.template);
+			this.$el.html(this.template(this.model.attributes));
 		}
 	});
 	return LoginView;
