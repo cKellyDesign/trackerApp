@@ -3,7 +3,7 @@ define([], function(){
 
 		'<section id="loginViewEl" class="form-area"></section>' +
 		'<section id="userOptionsEl" class="form-area"</section>' +
-		// Add / Update User View
+		'<section id="newFormEl" class="form-area"></section>' +
 		// Add Post View
 		// View Post View
 		// Post List View
