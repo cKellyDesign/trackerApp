@@ -2108,7 +2108,8 @@ define('templates/rootTemplate',[], function(){
 	var RootTemplate = '<main class="root_wrap">' +
 
 		'<section id="loginViewEl" class="form-area"></section>' +
-		// Add / Update User View
+		'<section id="userOptionsEl" class="form-area"</section>' +
+		'<section id="newFormEl" class="form-area"></section>' +
 		// Add Post View
 		// View Post View
 		// Post List View
@@ -2144,30 +2145,38 @@ define('templates/submitBtnTemplate',[], function(){
 	var submitBtnTemplate = '<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>';
 	return submitBtnTemplate;
 });
-define('templates/loginTemplate',[
+define('templates/formLoop',[
 	'./inputTemplate',
 	'./passwordTemplate',
 	'./textAreaTemplate',
 	'./submitBtnTemplate'
 	], function(inputTemplate, passwordTemplate, textAreaTemplate, submitBtnTemplate){
 
+	var formLoop = '<% _.each(inputs, function(field) { %>' + 
+		
+  	'<% if (field.type === "text") { %>' +
+    		inputTemplate +
+  	'<% } else if (field.type === "password") { %>' +
+  			passwordTemplate +
+    '<% } else if (field.type === "textarea") { %>' +
+    		textAreaTemplate +
+		'<% } else if (field.type === "submit") { %>' +
+    		submitBtnTemplate +
+  	'<% } %>' + 
+
+  '<% }); %>';
+
+	return formLoop;
+});
+define('templates/loginTemplate',[
+	'./formLoop'
+	], function(formLoop){
+
 	var loginTemplate = '<form role="form">' +
 
 		'<h3 style="margin-bottom: 25px; text-align: center;"><%= formTitle %></h3>' +
 
-    '<% _.each(inputs, function(field) { %>' + 
-			
-    	'<% if (field.type === "text") { %>' +
-      		inputTemplate +
-    	'<% } else if (field.type === "password") { %>' +
-    			passwordTemplate +
-      '<% } else if (field.type === "textarea") { %>' +
-      		textAreaTemplate +
-  		'<% } else if (field.type === "submit") { %>' +
-      		submitBtnTemplate +
-    	'<% } %>' + 
-
-    '<% }); %>' +
+    formLoop +
 
 	'</form>';
 	return loginTemplate;
@@ -2181,7 +2190,7 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 		template: _.template(loginTemplate),
 
 		events: {
-			'click #submit' : 'onSubmitLogin',
+			'click #logIn' : 'onSubmitLogin',
 			'click #register' : 'onRegisterNewUser',
 			'click #newUser' : 'onToggleFields',
 			'click #existingUser' : 'onToggleFields',
@@ -2228,6 +2237,7 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
       });
 		},
 		onPostSuccess: function(data){
+			console.log(data);
 			this.$el.html('');
 			TrApp.EventHub.trigger('login:success', data);
 		},
@@ -2288,6 +2298,77 @@ define('models/loginModel',[], function(){
 		}
 	});
 	return LoginModel;
+});
+define('templates/userOptionsTemplate',['./formLoop'], function(formLoop){
+	var userOptionsTemplate = '<form role="form" class="row">' +
+
+		formLoop +
+
+	'</form>';
+	return userOptionsTemplate;
+});
+define('views/userOptionsView',['templates/userOptionsTemplate'], function(userOptionsTemplate){
+	var userOptionsView = Backbone.View.extend({
+
+		template: _.template(userOptionsTemplate),
+
+		events: {
+			'click #createForm' :'onCreateNewFormClick'
+		},
+
+		initialize: function() {
+			this.render();
+			this.model.on('change', this.render, this);
+			TrApp.EventHub.on('userOpt:newForm', this.hideEl, this);
+		},
+		
+		onCreateNewFormClick: function(e) {
+			TrApp.EventHub.trigger('userOpt:newForm');
+		},
+
+		hideEl: function(e) {
+			console.log("hiding El event: ", e);
+			this.$el.hide();
+		},
+
+
+
+		render: function() {
+			this.$el.html(this.template(this.model.attributes));
+		}
+	});
+	return userOptionsView;
+});
+define('models/userOptionsModel',[], function(){
+	var userOptionsModel = Backbone.Model.extend({
+		defaults: {
+			inputs: [{ 
+        'slug': 'createForm', 
+        'placeholder': 'Create a New Form', 
+        'type': 'submit',
+        'classes': 'col-xs-12'
+      }, {
+				'slug' : 'viewPosts',
+				'placeholder' : 'View My Posts',
+				'type' : 'submit',
+				'classes' : 'pull-left'
+			}, {
+				'slug' : 'editUser',
+				'placeholder' : 'Edit User Info',
+				'type' : 'submit',
+				'classes' : 'pull-right'
+			}]
+		},
+		initialize: function(){
+			var initedInputs = this.get('inputs');
+			if (initedInputs !== this.defaults.inputs) {
+				var theseInputs = initedInputs.concat(this.defaults.inputs);
+				console.log(theseInputs);
+				this.set('inputs', theseInputs);
+			}
+		}
+	});
+	return userOptionsModel;
 });
 define('templates/formTemplate',[
 	'./inputTemplate',
@@ -2423,9 +2504,11 @@ define('views/rootView',[
   'templates/rootTemplate',
   'views/loginView',
   'models/loginModel',
+  'views/userOptionsView',
+  'models/userOptionsModel',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, LoginView, LoginModel, formView, formModel) {
+], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     template: _.template(rootTemplate),
@@ -2450,11 +2533,26 @@ define('views/rootView',[
 
     setUser: function(data) {
       this.model.set('currentUser', data.username);
-      // this.initUserActions();
+      this.initUserOptions(data);
     },
 
-    initUserActions: function() {
-      
+    initUserOptions: function(data) {
+      data.forms = ["myForm", "conorsForm"];
+      var userForms = _.map(data.forms, function(formSlug){
+        return { 
+          'slug': formSlug, 
+          'placeholder': 'New ' + formSlug + ' Form', 
+          'type': 'submit',
+          'classes': 'col-xs-12'
+        };
+      });
+      var userOptions = new UserOptionsView({
+        el: $('#userOptionsEl'),
+        model: new UserOptionsModel({
+          username: data.username,
+          inputs: userForms
+        })
+      })
     },
 
     initForms: function() {

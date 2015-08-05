@@ -2,9 +2,11 @@ define([
   'templates/rootTemplate',
   'views/loginView',
   'models/loginModel',
+  'views/userOptionsView',
+  'models/userOptionsModel',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, LoginView, LoginModel, formView, formModel) {
+], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     template: _.template(rootTemplate),
@@ -29,11 +31,26 @@ define([
 
     setUser: function(data) {
       this.model.set('currentUser', data.username);
-      // this.initUserActions();
+      this.initUserOptions(data);
     },
 
-    initUserActions: function() {
-      
+    initUserOptions: function(data) {
+      data.forms = ["myForm", "conorsForm"];
+      var userForms = _.map(data.forms, function(formSlug){
+        return { 
+          'slug': formSlug, 
+          'placeholder': 'New ' + formSlug + ' Form', 
+          'type': 'submit',
+          'classes': 'col-xs-12'
+        };
+      });
+      var userOptions = new UserOptionsView({
+        el: $('#userOptionsEl'),
+        model: new UserOptionsModel({
+          username: data.username,
+          inputs: userForms
+        })
+      })
     },
 
     initForms: function() {

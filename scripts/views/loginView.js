@@ -7,7 +7,7 @@ define(['templates/loginTemplate'], function(loginTemplate){
 		template: _.template(loginTemplate),
 
 		events: {
-			'click #submit' : 'onSubmitLogin',
+			'click #logIn' : 'onSubmitLogin',
 			'click #register' : 'onRegisterNewUser',
 			'click #newUser' : 'onToggleFields',
 			'click #existingUser' : 'onToggleFields',
@@ -54,6 +54,7 @@ define(['templates/loginTemplate'], function(loginTemplate){
       });
 		},
 		onPostSuccess: function(data){
+			console.log(data);
 			this.$el.html('');
 			TrApp.EventHub.trigger('login:success', data);
 		},
