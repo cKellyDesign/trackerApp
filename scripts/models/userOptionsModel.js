@@ -22,7 +22,6 @@ define([], function(){
 			var initedInputs = this.get('inputs');
 			if (initedInputs !== this.defaults.inputs) {
 				var theseInputs = initedInputs.concat(this.defaults.inputs);
-				console.log(theseInputs);
 				this.set('inputs', theseInputs);
 			}
 		}

@@ -54,7 +54,6 @@ define(['templates/loginTemplate'], function(loginTemplate){
       });
 		},
 		onPostSuccess: function(data){
-			console.log(data);
 			this.$el.html('');
 			TrApp.EventHub.trigger('login:success', data);
 		},
