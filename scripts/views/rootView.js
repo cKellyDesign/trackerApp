@@ -16,12 +16,12 @@ define([
       this.subscribeEvents();
       this.render();
       this.user = TrApp.getCookie("username");
+
       if ( this.user ) {
         this.setUser({ username: this.user });
       } else {
         this.initLogin();
       }
-      // this.initForms();
     },
 
     subscribeEvents: function() {
@@ -62,17 +62,17 @@ define([
       })
     },
 
-    initForms: function() {
-      _.each($('.j_form_wrap', this.$el), function(formEle) {
-        var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
-        var newForm = new formView({
-          el: $(formEle),
-          model: new formModel({
-            'formSlug': formSlug
-          })
-        });
-      });
-    },
+    // initForms: function() {
+    //   _.each($('.j_form_wrap', this.$el), function(formEle) {
+    //     var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
+    //     var newForm = new formView({
+    //       el: $(formEle),
+    //       model: new formModel({
+    //         'formSlug': formSlug
+    //       })
+    //     });
+    //   });
+    // },
 
     render: function() {
       this.$el.html(this.template(this.model.attributes));
