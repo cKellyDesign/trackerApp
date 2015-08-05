@@ -10,7 +10,8 @@ require([
   TrApp.root = new RootView({
     el: $('.j-main'),
     model: new RootModel({
-      'forms': arr
+      'forms': arr,
+      'currentUser': null
     })
   });
 

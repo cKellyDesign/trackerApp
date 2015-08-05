@@ -2121,23 +2121,53 @@ define('templates/rootTemplate',[], function(){
 	'</main>';
 	return RootTemplate;
 });
-define('templates/loginTemplate',[], function(){
+define('templates/inputTemplate',[], function(){
+	var inputTemplate = '<div class="form-group">' +
+    '<input type="text" class="form-control j-input-text" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
+  '</div>';
+	return inputTemplate;
+});
+define('templates/passwordTemplate',[], function(){
+	var passwordTemplate = '<div class="form-group">' +
+    '<input type="password" class="form-control j-input-text" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
+  '</div>';
+	return passwordTemplate;
+});
+define('templates/textAreaTemplate',[], function(){
+	var textareaTemplate = '<div class="form-group">' +
+		'<textarea class="form-control j-textarea j-input" type="<%= field.slug %>" name="message" id="message" placeholder="<%= field.placeholder %>" maxlength="140" rows="7"></textarea>' + 
+		  '<span class="help-block"><p id="characterLeft" class="help-block ">You have reached the limit</p></span>' +
+		'</div>';
+	return textareaTemplate;
+});
+define('templates/submitBtnTemplate',[], function(){
+	var submitBtnTemplate = '<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>';
+	return submitBtnTemplate;
+});
+define('templates/loginTemplate',[
+	'./inputTemplate',
+	'./passwordTemplate',
+	'./textAreaTemplate',
+	'./submitBtnTemplate'
+	], function(inputTemplate, passwordTemplate, textAreaTemplate, submitBtnTemplate){
+
 	var loginTemplate = '<form role="form">' +
-		'<h3 style="margin-bottom: 25px; text-align: center;" id="loginTitle">Log In</h3>' +
-		'<h3 style="margin-bottom: 25px; text-align: center;" id="registerTitle" class="hidden">New User</h3>' +
-		'<div class="form-group">' +
-			'<input type="text" class="form-control" id="username" name="username" placeholder="Username" required>' +
-		'</div>' +
-		'<div class="form-group">' +
-			'<input type="password" class="form-control" id="password" name="password" placeholder="Password" required>' +
-		'</div>' +
-		'<div class="form-group">' +
-			'<input type="password" class="form-control hidden" id="passwordRe" name="passwordrepeat" placeholder="Repeat Password" required>' +
-		'</div>' +
-		'<button type="button" id="submit" name="submit" class="btn btn-primary pull-left">Log In</button>' +
-		'<button type="button" id="newUser" name="newuser" class="btn btn-primary pull-right">New User</button>' + 
-		'<button type="button" id="existingUser" name="existinguser" class="btn btn-primary pull-right center hidden">Existing User</buton>' +
-		'<button type="button" id="register" name="register" class="btn btn-primary pull-left center hidden">Register</buton>' +
+
+		'<h3 style="margin-bottom: 25px; text-align: center;"><%= formTitle %></h3>' +
+
+    '<% _.each(inputs, function(field) { %>' + 
+			
+    	'<% if (field.type === "text") { %>' +
+      		inputTemplate +
+    	'<% } else if (field.type === "password") { %>' +
+    			passwordTemplate +
+      '<% } else if (field.type === "textarea") { %>' +
+      		textAreaTemplate +
+  		'<% } else if (field.type === "submit") { %>' +
+      		submitBtnTemplate +
+    	'<% } %>' + 
+
+    '<% }); %>' +
 
 	'</form>';
 	return loginTemplate;
@@ -2148,7 +2178,7 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 		username: '',
 		password: '',
 
-		template: loginTemplate,
+		template: _.template(loginTemplate),
 
 		events: {
 			'click #submit' : 'onSubmitLogin',
@@ -2158,7 +2188,8 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 		},
 
 		initialize: function() {
-			this.render();	
+			this.render();
+			this.model.on('change reset', this.render, this);
 		},
 		onSubmitLogin: function(e) {
 			e.preventDefault();
@@ -2211,38 +2242,52 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
 		},
 		onToggleFields: function(e) {
 			e.preventDefault();
-			$('#existingUser').toggleClass('hidden');
-			$('#register').toggleClass('hidden');
-			$('#submit').toggleClass('hidden');
-			$('#newUser').toggleClass('hidden');
-			$('#passwordRe').toggleClass('hidden').val('');
-			$('#username').val('');
-			$('#password').val('');
-			$('#loginTitle').toggleClass('hidden');
-			$('#registerTitle').toggleClass('hidden');
+			var theseInputs = _.clone(this.model.get('inputs'));
+			var isLogin = theseInputs.length === 4; 
+
+			if ( isLogin ) {
+				theseInputs[3] = { 'slug':'existingUser', 'placeholder':'Existing User', 'type': 'submit', 'classes': 'pull-right' };
+				theseInputs[2] = { 'slug':'register', 'placeholder':'Register', 'type': 'submit', 'classes': 'pull-left' };
+				theseInputs.splice(2, 0, { 'slug' : 'passwordRe', 'placeholder' : 'Retype Password', 'type' : 'password' });
+				this.model.set('formTitle', 'New User');
+				this.model.set('inputs', theseInputs);
+			} else {
+				this.model.clear({ silent: true }).set(this.model.defaults);
+			}
 		},
 		render: function() {
-			this.$el.html(this.template);
+			this.$el.html(this.template(this.model.attributes));
 		}
 	});
 	return LoginView;
 });
-define('templates/inputTemplate',[], function(){
-	var inputTemplate = '<div class="form-group">' +
-    '<input type="text" class="form-control j-input-text" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
-  '</div>';
-	return inputTemplate;
-});
-define('templates/textAreaTemplate',[], function(){
-	var textareaTemplate = '<div class="form-group">' +
-		'<textarea class="form-control j-textarea j-input" type="<%= field.slug %>" name="message" id="message" placeholder="<%= field.placeholder %>" maxlength="140" rows="7"></textarea>' + 
-		  '<span class="help-block"><p id="characterLeft" class="help-block ">You have reached the limit</p></span>' +
-		'</div>';
-	return textareaTemplate;
-});
-define('templates/submitBtnTemplate',[], function(){
-	var submitBtnTemplate = '<button type="button" id="submit" name="<%= field.slug %>" class="btn btn-primary pull-right j-submit"><%= field.placeholder %></button>';
-	return submitBtnTemplate;
+define('models/loginModel',[], function(){
+	var LoginModel = Backbone.Model.extend({
+		defaults: {
+			'formName' : 'logIn',
+			'formTitle' : 'Log In',
+			'inputs' : [{
+				'slug' : 'username',
+				'placeholder' : 'Username',
+				'type' : 'text'
+			}, {
+				'slug' : 'password',
+				'placeholder' : 'Password',
+				'type' : 'password'
+			}, {
+				'slug' : 'logIn',
+				'placeholder' : 'Log In',
+				'type' : 'submit',
+				'classes' : 'pull-left'
+			}, {
+				'slug' : 'newUser',
+				'placeholder' : 'New User',
+				'type' : 'submit',
+				'classes' : 'pull-right'
+			}]
+		}
+	});
+	return LoginModel;
 });
 define('templates/formTemplate',[
 	'./inputTemplate',
@@ -2377,9 +2422,10 @@ define('models/formModel',[], function() {
 define('views/rootView',[
   'templates/rootTemplate',
   'views/loginView',
+  'models/loginModel',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, LoginView, formView, formModel) {
+], function(rootTemplate, LoginView, LoginModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     template: _.template(rootTemplate),
@@ -2396,7 +2442,10 @@ define('views/rootView',[
     },
 
     initLogin: function() {
-      var loginView = new LoginView({ el:$('#loginViewEl') });
+      var loginView = new LoginView({ 
+        el:$('#loginViewEl'),
+        model: new LoginModel()
+      });
     },
 
     setUser: function(data) {
@@ -2448,7 +2497,8 @@ require([
   TrApp.root = new RootView({
     el: $('.j-main'),
     model: new RootModel({
-      'forms': arr
+      'forms': arr,
+      'currentUser': null
     })
   });
 
