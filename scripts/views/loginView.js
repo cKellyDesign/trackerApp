@@ -54,9 +54,9 @@ define(['templates/loginTemplate'], function(loginTemplate){
       });
 		},
 		onPostSuccess: function(data){
-			console.log(data);
 			this.$el.html('');
 			TrApp.EventHub.trigger('login:success', data);
+			TrApp.setCookie("username", data.username);
 		},
 		onPostFail: function(err) {
 			if (err.status === 404) {

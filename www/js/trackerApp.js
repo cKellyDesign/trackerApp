@@ -2237,9 +2237,9 @@ define('views/loginView',['templates/loginTemplate'], function(loginTemplate){
       });
 		},
 		onPostSuccess: function(data){
-			console.log(data);
 			this.$el.html('');
 			TrApp.EventHub.trigger('login:success', data);
+			TrApp.setCookie("username", data.username);
 		},
 		onPostFail: function(err) {
 			if (err.status === 404) {
@@ -2363,7 +2363,6 @@ define('models/userOptionsModel',[], function(){
 			var initedInputs = this.get('inputs');
 			if (initedInputs !== this.defaults.inputs) {
 				var theseInputs = initedInputs.concat(this.defaults.inputs);
-				console.log(theseInputs);
 				this.set('inputs', theseInputs);
 			}
 		}
@@ -2511,17 +2510,24 @@ define('views/rootView',[
 ], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
+    user: null,
     template: _.template(rootTemplate),
 
     initialize: function() {
-      this.render();
-      // this.initForms();
       this.subscribeEvents();
-      this.initLogin();
+      this.render();
+      this.user = TrApp.getCookie("username");
+
+      if ( this.user ) {
+        this.setUser({ username: this.user });
+      } else {
+        this.initLogin();
+      }
     },
 
     subscribeEvents: function() {
       TrApp.EventHub.on('login:success', this.setUser, this);
+      this.model.on('change:currentUser', this.initUserOptions, this);
     },
 
     initLogin: function() {
@@ -2531,13 +2537,15 @@ define('views/rootView',[
       });
     },
 
-    setUser: function(data) {
-      this.model.set('currentUser', data.username);
-      this.initUserOptions(data);
+    setUser: function(user) {
+      this.model.set('currentUser', user);
     },
 
-    initUserOptions: function(data) {
-      data.forms = ["myForm", "conorsForm"];
+    initUserOptions: function() {
+      var data = this.model.get('currentUser');
+      if ( !data.forms || data.forms.length < 1) {
+        data.forms = ["myForm", "conorsForm"];
+      }
       var userForms = _.map(data.forms, function(formSlug){
         return { 
           'slug': formSlug, 
@@ -2555,21 +2563,20 @@ define('views/rootView',[
       })
     },
 
-    initForms: function() {
-      _.each($('.j_form_wrap', this.$el), function(formEle) {
-        var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
-        var newForm = new formView({
-          el: $(formEle),
-          model: new formModel({
-            'formSlug': formSlug
-          })
-        });
-      });
-    },
+    // initForms: function() {
+    //   _.each($('.j_form_wrap', this.$el), function(formEle) {
+    //     var formSlug = $('.j_initThisForm_btn', formEle).data('form-slug');
+    //     var newForm = new formView({
+    //       el: $(formEle),
+    //       model: new formModel({
+    //         'formSlug': formSlug
+    //       })
+    //     });
+    //   });
+    // },
 
     render: function() {
       this.$el.html(this.template(this.model.attributes));
-      return this;
     }
 
   });
@@ -2583,19 +2590,49 @@ define('models/rootModel',[], function() {
   return RootModel;
 });
 
+define('TrAppUtils',[], function(){
+
+	function getCookie (cname) {
+    var name = cname + "="
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return null;
+  }
+	
+  function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + ((exdays||1)*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+	}
+
+	return {
+		'getCookie': getCookie,
+		'setCookie': setCookie
+	};
+});
 require([
   'views/rootView',
   'models/rootModel',
-  'templates/rootTemplate'
-], function(RootView, RootModel, RootTemplate) {
-  var arr = ['usernameForm', 'myForm', 'longForm'];
-  TrApp = window.TrApp || {};
+  'templates/rootTemplate',
+  './TrAppUtils'
+], function(RootView, RootModel, RootTemplate, TrAppUtils) {
+
+  TrApp = window.TrApp || {
+    'getCookie': TrAppUtils.getCookie,
+    'setCookie': TrAppUtils.setCookie
+  };
+
   TrApp.EventHub = {};
   _.extend(TrApp.EventHub, Backbone.Events);
+
   TrApp.root = new RootView({
     el: $('.j-main'),
     model: new RootModel({
-      'forms': arr,
       'currentUser': null
     })
   });
