@@ -9,17 +9,24 @@ define([
 ], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
+    user: null,
     template: _.template(rootTemplate),
 
     initialize: function() {
-      this.render();
-      // this.initForms();
       this.subscribeEvents();
-      this.initLogin();
+      this.render();
+      this.user = this.getCookie("username");
+      if ( this.user ) {
+        this.setUser({ username: this.user });
+      } else {
+        this.initLogin();
+      }
+      // this.initForms();
     },
 
     subscribeEvents: function() {
       TrApp.EventHub.on('login:success', this.setUser, this);
+      this.model.on('change:currentUser', this.initUserOptions, this);
     },
 
     initLogin: function() {
@@ -29,13 +36,15 @@ define([
       });
     },
 
-    setUser: function(data) {
-      this.model.set('currentUser', data.username);
-      this.initUserOptions(data);
+    setUser: function(user) {
+      this.model.set('currentUser', user);
     },
 
-    initUserOptions: function(data) {
-      data.forms = ["myForm", "conorsForm"];
+    initUserOptions: function() {
+      var data = this.model.get('currentUser');
+      if ( !data.forms || data.forms.length < 1) {
+        data.forms = ["myForm", "conorsForm"];
+      }
       var userForms = _.map(data.forms, function(formSlug){
         return { 
           'slug': formSlug, 
@@ -67,8 +76,18 @@ define([
 
     render: function() {
       this.$el.html(this.template(this.model.attributes));
-      return this;
-    }
+    },
+
+    getCookie: function(cname){
+      var name = cname + "="
+      var ca = document.cookie.split(';');
+      for(var i=0; i<ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0)==' ') c = c.substring(1);
+          if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+      }
+      return "";
+    },
 
   });
   return RootView;
