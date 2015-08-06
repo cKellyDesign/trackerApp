@@ -2108,7 +2108,7 @@ define('templates/rootTemplate',[], function(){
 	var RootTemplate = '<main class="root_wrap">' +
 
 		'<section id="loginViewEl" class="form-area"></section>' +
-		'<section id="userOptionsEl" class="form-area"</section>' +
+		'<section id="userOptionsEl" class="form-area"></section>' +
 		'<section id="newFormEl" class="form-area"></section>' +
 		// Add Post View
 		// View Post View
@@ -2123,8 +2123,8 @@ define('templates/rootTemplate',[], function(){
 	return RootTemplate;
 });
 define('templates/inputTemplate',[], function(){
-	var inputTemplate = '<div class="form-group">' +
-    '<input type="text" class="form-control j-input-text" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
+	var inputTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
+    '<input type="text" class="form-control j-input-text <% if (field.classes) { %> <%= field.classes %> <% } %>" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
   '</div>';
 	return inputTemplate;
 });
@@ -2142,15 +2142,32 @@ define('templates/textAreaTemplate',[], function(){
 	return textareaTemplate;
 });
 define('templates/submitBtnTemplate',[], function(){
-	var submitBtnTemplate = '<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>';
+	var submitBtnTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
+		'<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>' +
+	'</div>';
 	return submitBtnTemplate;
+});
+define('templates/selectTemplate',[], function(){
+	var selectTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
+		'<select id="<%= field.slug %>" class="formControl <%= field.classes %>">' +
+
+			'<option value="" disabled><%= field.placeholder %></option>' +
+			
+			'<% _.each(field.options, function(option){ %>' +
+				'<option value="<%= option %>"><%= option %></option>' +
+			'<% }); %>' +
+		
+		'</select>' +
+	'</div>';
+	return selectTemplate;
 });
 define('templates/formLoop',[
 	'./inputTemplate',
 	'./passwordTemplate',
 	'./textAreaTemplate',
-	'./submitBtnTemplate'
-	], function(inputTemplate, passwordTemplate, textAreaTemplate, submitBtnTemplate){
+	'./submitBtnTemplate',
+	'./selectTemplate',
+	], function(inputTemplate, passwordTemplate, textAreaTemplate, submitBtnTemplate, selectTemplate){
 
 	var formLoop = '<% _.each(inputs, function(field) { %>' + 
 		
@@ -2158,6 +2175,8 @@ define('templates/formLoop',[
     		inputTemplate +
   	'<% } else if (field.type === "password") { %>' +
   			passwordTemplate +
+  	'<% } else if (field.type === "select") { %>' +
+  			selectTemplate +
     '<% } else if (field.type === "textarea") { %>' +
     		textAreaTemplate +
 		'<% } else if (field.type === "submit") { %>' +
@@ -2369,6 +2388,114 @@ define('models/userOptionsModel',[], function(){
 	});
 	return userOptionsModel;
 });
+define('templates/newFormTemplate',[
+	'./formLoop',
+	'./inputTemplate',
+	'./submitBtnTemplate',
+	'./selectTemplate'
+	], function (formLoop, inputTemplate, submitBtnTemplate, selectTemplate){
+	var newFormModel = '<form role="form" class="row">' +
+
+		'<h3 style="margin-bottom: 25px; text-align: center;"><%= formTitle %></h3>' +
+
+		formLoop +
+
+		'<% _.each(actionables, function(field) { %>' +
+			'<% if (field.type === "text") { %>' +
+	    		inputTemplate +
+	  	'<% } else if (field.type === "select") { %>' +
+	  			selectTemplate +
+			'<% } else if (field.type === "submit") { %>' +
+	    		submitBtnTemplate +
+	  	'<% } %>' +
+		'<% }); %>' +
+	'</form>';
+	return newFormModel;
+});
+define('views/newFormView',['templates/newFormTemplate'], function(newFormTemplate){
+	var newFormView = Backbone.View.extend({
+		
+		template : _.template(newFormTemplate),
+		events : {
+			'click #addNewField' : 'onAddNewField'
+		},
+
+		initialize: function() {
+			this.render();
+			this.model.on('change', this.render, this);
+		}, 
+
+		onAddNewField: function(e) {
+			e.preventDefault();
+			var inputs = _.clone(this.model.get('inputs'));
+
+			var fieldValue = $('#newFieldValue').val();
+			var fieldType = $('#typeDropdown').val();
+			var fieldSlug = TrApp.slugify(fieldValue);
+			
+			inputs.push({
+				'slug' : fieldSlug,
+				'placeholder' : fieldValue,
+				'type' : fieldType,
+				'classes' : 'col-xs-12',
+				'size' : 'col-xs-12'
+			});
+
+			this.model.set('inputs', inputs);
+		},
+
+		onSaveNewForm: function() {
+			// todo: POST LOGIC GOES HERE
+		},
+
+		render: function() {
+			this.$el.html(this.template(this.model.attributes));
+		}
+
+	});
+	return newFormView;
+});
+define('models/newFormModel',[], function(){
+	var newFormModel = Backbone.Model.extend({
+		defaults : {
+			formTitle : 'Create New Form',
+			inputs : [{
+				'slug' : 'formName',
+				'placeholder' : 'Form Name (example: My Form)',
+				'type' : 'text',
+				'classes' : 'required',
+				'size' : 'col-xs-12'
+			}],
+			actionables : [{
+				'slug' : 'newFieldValue',
+				'placeholder' : 'Field Title',
+				'type' : 'text',
+				'classes' : 'required',
+				'size' : 'col-xs-6'
+			}, {
+				'slug' : 'typeDropdown',
+				'placeholder' : 'Type',
+				'type' : 'select',
+				'options' : ["text", "password", "textarea", "submit"],
+				'classes' : 'col-xs-12 required',
+				'size' : 'col-xs-6'
+			}, {
+				'slug' : 'addNewField',
+				'placeholder' : 'Add New Field',
+				'type' : 'submit',
+				'classes' : 'col-xs-12',
+				'size' : 'col-xs-12'
+			}, {
+				'slug' : 'saveForm',
+				'placeholder' : 'Save New Form',
+				'type' : 'submit',
+				'classes' : 'col-xs-12',
+				'size' : 'col-xs-12'
+			}]
+		}
+	});
+	return newFormModel;
+});
 define('templates/formTemplate',[
 	'./inputTemplate',
 	'./textAreaTemplate',
@@ -2505,9 +2632,11 @@ define('views/rootView',[
   'models/loginModel',
   'views/userOptionsView',
   'models/userOptionsModel',
+  'views/newFormView',
+  'models/newFormModel',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, formView, formModel) {
+], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, newFormView, newFormModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     user: null,
@@ -2527,6 +2656,7 @@ define('views/rootView',[
 
     subscribeEvents: function() {
       TrApp.EventHub.on('login:success', this.setUser, this);
+      TrApp.EventHub.on('userOpt:newForm', this.initNewForm, this);
       this.model.on('change:currentUser', this.initUserOptions, this);
     },
 
@@ -2544,7 +2674,7 @@ define('views/rootView',[
     initUserOptions: function() {
       var data = this.model.get('currentUser');
       if ( !data.forms || data.forms.length < 1) {
-        data.forms = ["myForm", "conorsForm"];
+        // data.forms = ["myForm", "conorsForm"];
       }
       var userForms = _.map(data.forms, function(formSlug){
         return { 
@@ -2561,6 +2691,13 @@ define('views/rootView',[
           inputs: userForms
         })
       })
+    },
+
+    initNewForm: function() {
+      var newForm = new newFormView({
+        el: $('#newFormEl'),
+        model: new newFormModel()
+      });
     },
 
     // initForms: function() {
@@ -2610,9 +2747,19 @@ define('TrAppUtils',[], function(){
     document.cookie = cname + "=" + cvalue + "; " + expires;
 	}
 
+  function slugify(text){
+    return text.toString().toLowerCase()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+      .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+      .replace(/^-+/, '')             // Trim - from start of text
+      .replace(/-+$/, '');            // Trim - from end of text
+  }
+
 	return {
 		'getCookie': getCookie,
-		'setCookie': setCookie
+		'setCookie': setCookie,
+    'slugify': slugify
 	};
 });
 require([
@@ -2624,7 +2771,8 @@ require([
 
   TrApp = window.TrApp || {
     'getCookie': TrAppUtils.getCookie,
-    'setCookie': TrAppUtils.setCookie
+    'setCookie': TrAppUtils.setCookie,
+    'slugify': TrAppUtils.slugify
   };
 
   TrApp.EventHub = {};

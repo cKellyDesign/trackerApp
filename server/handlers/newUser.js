@@ -14,7 +14,7 @@ module.exports = function init (User) {
 				return;
 			} else if (!user) {
 				new User(userData).save();
-				res.status(200).send({ username: user.username, forms: user.forms });
+				res.status(200).send({ username: userData.username, forms: userData.forms });
 				next();
 				return;
 			} else {

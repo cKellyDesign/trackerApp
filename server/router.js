@@ -7,6 +7,7 @@ var path = require('path'),
 	loginHandler = require('./handlers/userLogin')(User),
 	listUsers = require('./handlers/listUsers')(User),
 	getUser = require('./handlers/getUser')(User),
+	newFormHandler = require('./handlers/newFormHandler'),
 	isDev = process.env.NODE_ENV === 'development';
 
 exports.setRoutes = function(trackerApp, db) {
@@ -22,6 +23,7 @@ exports.setRoutes = function(trackerApp, db) {
 
 	trackerApp.post('/submitLogin', loginHandler);
 	trackerApp.post('/newUser', newUserHandler);
+	trackerApp.post('/:username/newForm', newFormHandler);
 
 	trackerApp.get('/users', listUsers);
 	trackerApp.get('/getUser/:username', getUser);
