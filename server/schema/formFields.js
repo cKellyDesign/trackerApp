@@ -2,31 +2,47 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
 	Helper = require('./../helpers/utils');
 
-// Input Field
+// Input Schema
 var inputSchema = new Schema({
 	placeholder : { type: String, required: true },
-	slug : String
+	slug : String,
+	type : { type: String, required: true },
+	classes : String
 });
-inputSchema.pre('save', function (next){
+
+inputSchema.pre('save', function (next) {
 	if (!this.slug) {
-		Helper.slugify(this.placeholder);
+		this.slug = Helper.slugify(this.placeholder);
 	}
 	next();
 });
+
 var inputField = mongoose.model('InputField', inputSchema);
 
-// Password Field
-var passwordSchema = new Schema({
-	placeholder : String
+inputField.schema.path('type').validate(function(value){
+	return /text|password|textarea|submit/i.test(vaule);
+}, 'Invalid Field Type');
+
+// Form Schema
+var formSchema = new Schema({
+	formName : { type: String, required: true },
+	formTitle : String,
+	slug : String,
+	fields : [{ type: Schema.Types.ObjectId, ref: 'InputField' }],
+	author : String
 });
 
-// Textarea
+formSchema.pre('save', function (next) {
+	if(!this.slug) {
+		this.slug = Helper.slugify(this.placeholder);
+	}
+	next();
+});
 
-
-// Buttons
-
+var form = mongoose.model('Form', formSchema);
 
 module.exports = {
-	'inputField' : inputField
+	'InputField' : inputField,
+	'Form' : form
 };
 
