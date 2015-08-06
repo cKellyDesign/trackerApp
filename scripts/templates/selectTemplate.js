@@ -1,5 +1,5 @@
 define([], function(){
-	var selectTemplate = '<div class="form-group">' +
+	var selectTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
 		'<select class="formControl <%= field.classes %>">' +
 
 			'<option value="" disabled selected><%= field.placeholder %></option>' +

@@ -2123,8 +2123,8 @@ define('templates/rootTemplate',[], function(){
 	return RootTemplate;
 });
 define('templates/inputTemplate',[], function(){
-	var inputTemplate = '<div class="form-group">' +
-    '<input type="text" class="form-control j-input-text" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
+	var inputTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
+    '<input type="text" class="form-control j-input-text <% if (field.classes) { %> <%= field.classes %> <% } %>" id="<%= field.slug %>" name="<%= field.slug %>" placeholder="<%= field.placeholder %>" required>' +
   '</div>';
 	return inputTemplate;
 });
@@ -2142,13 +2142,13 @@ define('templates/textAreaTemplate',[], function(){
 	return textareaTemplate;
 });
 define('templates/submitBtnTemplate',[], function(){
-	var submitBtnTemplate = '<div class="form-group">' +
+	var submitBtnTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
 		'<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>' +
 	'</div>';
 	return submitBtnTemplate;
 });
 define('templates/selectTemplate',[], function(){
-	var selectTemplate = '<div class="form-group">' +
+	var selectTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
 		'<select class="formControl <%= field.classes %>">' +
 
 			'<option value="" disabled selected><%= field.placeholder %></option>' +
@@ -2440,24 +2440,34 @@ define('models/newFormModel',[], function(){
 				'slug' : 'formName',
 				'placeholder' : 'Form Name (example: My Form)',
 				'type' : 'text',
-				'classes' : 'required'
+				'classes' : 'required',
+				'size' : 'col-xs-12'
 			}],
 			actionables : [{
-				'slug' : 'newField',
-				'placeholder' : 'Add New Field',
-				'type' : 'submit',
-				'classes' : 'col-xs-6'
+				'slug' : 'newFieldValue',
+				'placeholder' : 'Field Value (comma sperated if select)',
+				'type' : 'text',
+				'classes' : 'j-newFieldValue',
+				'size' : 'col-xs-6'
 			}, {
 				'slug' : 'typeDropdown',
 				'placeholder' : 'Type',
 				'type' : 'select',
 				'options' : ["text", "password", "textarea", "submit"],
-				'classes' : 'col-xs-6'
+				'classes' : 'j-newFieldType col-xs-12',
+				'size' : 'col-xs-6'
+			}, {
+				'slug' : 'addNewField',
+				'placeholder' : 'Add New Field',
+				'type' : 'submit',
+				'classes' : 'j-addNewField col-xs-12',
+				'size' : 'col-xs-12'
 			}, {
 				'slug' : 'saveForm',
 				'placeholder' : 'Save New Form',
 				'type' : 'submit',
-				'classes' : 'col-xs-12'
+				'classes' : 'j-saveForm col-xs-12',
+				'size' : 'col-xs-12'
 			}]
 		}
 	});
