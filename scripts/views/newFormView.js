@@ -30,6 +30,10 @@ define(['templates/newFormTemplate'], function(newFormTemplate){
 			this.model.set('inputs', inputs);
 		},
 
+		onSaveNewForm: function() {
+			// todo: POST LOGIC GOES HERE
+		},
+
 		render: function() {
 			this.$el.html(this.template(this.model.attributes));
 		}

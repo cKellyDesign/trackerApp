@@ -2444,6 +2444,10 @@ define('views/newFormView',['templates/newFormTemplate'], function(newFormTempla
 			this.model.set('inputs', inputs);
 		},
 
+		onSaveNewForm: function() {
+			// todo: POST LOGIC GOES HERE
+		},
+
 		render: function() {
 			this.$el.html(this.template(this.model.attributes));
 		}
