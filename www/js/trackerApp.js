@@ -2149,9 +2149,9 @@ define('templates/submitBtnTemplate',[], function(){
 });
 define('templates/selectTemplate',[], function(){
 	var selectTemplate = '<div class="form-group <% if (field.size) { %> <%= field.size %> <% } %>">' +
-		'<select class="formControl <%= field.classes %>">' +
+		'<select id="<%= field.slug %>" class="formControl <%= field.classes %>">' +
 
-			'<option value="" disabled selected><%= field.placeholder %></option>' +
+			'<option value="" disabled><%= field.placeholder %></option>' +
 			
 			'<% _.each(field.options, function(option){ %>' +
 				'<option value="<%= option %>"><%= option %></option>' +
@@ -2417,15 +2417,39 @@ define('views/newFormView',['templates/newFormTemplate'], function(newFormTempla
 		
 		template : _.template(newFormTemplate),
 		events : {
-
+			'click #addNewField' : 'onAddNewField'
 		},
 
 		initialize: function() {
-			console.log("INIT NEW FORM", this.$el);
 			this.render();
+			this.model.on('change', this.render, this);
 		}, 
 
+		onAddNewField: function(e) {
+			e.preventDefault();
+			var inputs = _.clone(this.model.get('inputs'));
+
+			var fieldValue = $('#newFieldValue').val();
+			var fieldType = $('#typeDropdown').val();
+			console.log("\n\n", fieldType, "\n\n");
+			var fieldSlug = TrApp.slugify(fieldValue);
+			
+			inputs.push({
+				'slug' : fieldSlug,
+				'placeholder' : fieldValue,
+				'type' : fieldType,
+				'classes' : 'col-xs-12',
+				'size' : 'col-xs-12'
+			});
+
+			console.log("ABOUT TO SET INPUTS: ", inputs);
+
+			this.model.set('inputs', inputs);
+		},
+
 		render: function() {
+			console.log("Rendering NEW FORM", this.model.attributes.inputs);
+
 			this.$el.html(this.template(this.model.attributes));
 		}
 
@@ -2445,28 +2469,28 @@ define('models/newFormModel',[], function(){
 			}],
 			actionables : [{
 				'slug' : 'newFieldValue',
-				'placeholder' : 'Field Value (comma sperated if select)',
+				'placeholder' : 'Field Title',
 				'type' : 'text',
-				'classes' : 'j-newFieldValue',
+				'classes' : 'required',
 				'size' : 'col-xs-6'
 			}, {
 				'slug' : 'typeDropdown',
 				'placeholder' : 'Type',
 				'type' : 'select',
 				'options' : ["text", "password", "textarea", "submit"],
-				'classes' : 'j-newFieldType col-xs-12',
+				'classes' : 'col-xs-12 required',
 				'size' : 'col-xs-6'
 			}, {
 				'slug' : 'addNewField',
 				'placeholder' : 'Add New Field',
 				'type' : 'submit',
-				'classes' : 'j-addNewField col-xs-12',
+				'classes' : 'col-xs-12',
 				'size' : 'col-xs-12'
 			}, {
 				'slug' : 'saveForm',
 				'placeholder' : 'Save New Form',
 				'type' : 'submit',
-				'classes' : 'j-saveForm col-xs-12',
+				'classes' : 'col-xs-12',
 				'size' : 'col-xs-12'
 			}]
 		}
@@ -2724,9 +2748,19 @@ define('TrAppUtils',[], function(){
     document.cookie = cname + "=" + cvalue + "; " + expires;
 	}
 
+  function slugify(text){
+    return text.toString().toLowerCase()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+      .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+      .replace(/^-+/, '')             // Trim - from start of text
+      .replace(/-+$/, '');            // Trim - from end of text
+  }
+
 	return {
 		'getCookie': getCookie,
-		'setCookie': setCookie
+		'setCookie': setCookie,
+    'slugify': slugify
 	};
 });
 require([
@@ -2738,7 +2772,8 @@ require([
 
   TrApp = window.TrApp || {
     'getCookie': TrAppUtils.getCookie,
-    'setCookie': TrAppUtils.setCookie
+    'setCookie': TrAppUtils.setCookie,
+    'slugify': TrAppUtils.slugify
   };
 
   TrApp.EventHub = {};

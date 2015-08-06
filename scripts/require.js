@@ -7,7 +7,8 @@ require([
 
   TrApp = window.TrApp || {
     'getCookie': TrAppUtils.getCookie,
-    'setCookie': TrAppUtils.setCookie
+    'setCookie': TrAppUtils.setCookie,
+    'slugify': TrAppUtils.slugify
   };
 
   TrApp.EventHub = {};

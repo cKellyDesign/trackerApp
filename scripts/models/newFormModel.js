@@ -11,28 +11,28 @@ define([], function(){
 			}],
 			actionables : [{
 				'slug' : 'newFieldValue',
-				'placeholder' : 'Field Value (comma sperated if select)',
+				'placeholder' : 'Field Title',
 				'type' : 'text',
-				'classes' : 'j-newFieldValue',
+				'classes' : 'required',
 				'size' : 'col-xs-6'
 			}, {
 				'slug' : 'typeDropdown',
 				'placeholder' : 'Type',
 				'type' : 'select',
 				'options' : ["text", "password", "textarea", "submit"],
-				'classes' : 'j-newFieldType col-xs-12',
+				'classes' : 'col-xs-12 required',
 				'size' : 'col-xs-6'
 			}, {
 				'slug' : 'addNewField',
 				'placeholder' : 'Add New Field',
 				'type' : 'submit',
-				'classes' : 'j-addNewField col-xs-12',
+				'classes' : 'col-xs-12',
 				'size' : 'col-xs-12'
 			}, {
 				'slug' : 'saveForm',
 				'placeholder' : 'Save New Form',
 				'type' : 'submit',
-				'classes' : 'j-saveForm col-xs-12',
+				'classes' : 'col-xs-12',
 				'size' : 'col-xs-12'
 			}]
 		}
