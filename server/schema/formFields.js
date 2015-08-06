@@ -43,6 +43,6 @@ var form = mongoose.model('Form', formSchema);
 
 module.exports = {
 	'InputField' : inputField,
-	'Form' : form
+	'FormModel' : form
 };
 
