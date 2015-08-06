@@ -2108,7 +2108,7 @@ define('templates/rootTemplate',[], function(){
 	var RootTemplate = '<main class="root_wrap">' +
 
 		'<section id="loginViewEl" class="form-area"></section>' +
-		'<section id="userOptionsEl" class="form-area"</section>' +
+		'<section id="userOptionsEl" class="form-area"></section>' +
 		'<section id="newFormEl" class="form-area"></section>' +
 		// Add Post View
 		// View Post View
@@ -2142,15 +2142,32 @@ define('templates/textAreaTemplate',[], function(){
 	return textareaTemplate;
 });
 define('templates/submitBtnTemplate',[], function(){
-	var submitBtnTemplate = '<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>';
+	var submitBtnTemplate = '<div class="form-group">' +
+		'<button type="button" id="<%= field.slug %>" name="<%= field.slug %>" class="btn btn-primary <%= field.classes %> j-submit"><%= field.placeholder %></button>' +
+	'</div>';
 	return submitBtnTemplate;
+});
+define('templates/selectTemplate',[], function(){
+	var selectTemplate = '<div class="form-group">' +
+		'<select class="formControl <%= field.classes %>">' +
+
+			'<option value="" disabled selected><%= field.placeholder %></option>' +
+			
+			'<% _.each(field.options, function(option){ %>' +
+				'<option value="<%= option %>"><%= option %></option>' +
+			'<% }); %>' +
+		
+		'</select>' +
+	'</div>';
+	return selectTemplate;
 });
 define('templates/formLoop',[
 	'./inputTemplate',
 	'./passwordTemplate',
 	'./textAreaTemplate',
-	'./submitBtnTemplate'
-	], function(inputTemplate, passwordTemplate, textAreaTemplate, submitBtnTemplate){
+	'./submitBtnTemplate',
+	'./selectTemplate',
+	], function(inputTemplate, passwordTemplate, textAreaTemplate, submitBtnTemplate, selectTemplate){
 
 	var formLoop = '<% _.each(inputs, function(field) { %>' + 
 		
@@ -2158,6 +2175,8 @@ define('templates/formLoop',[
     		inputTemplate +
   	'<% } else if (field.type === "password") { %>' +
   			passwordTemplate +
+  	'<% } else if (field.type === "select") { %>' +
+  			selectTemplate +
     '<% } else if (field.type === "textarea") { %>' +
     		textAreaTemplate +
 		'<% } else if (field.type === "submit") { %>' +
@@ -2369,6 +2388,81 @@ define('models/userOptionsModel',[], function(){
 	});
 	return userOptionsModel;
 });
+define('templates/newFormTemplate',[
+	'./formLoop',
+	'./inputTemplate',
+	'./submitBtnTemplate',
+	'./selectTemplate'
+	], function (formLoop, inputTemplate, submitBtnTemplate, selectTemplate){
+	var newFormModel = '<form role="form" class="row">' +
+
+		'<h3 style="margin-bottom: 25px; text-align: center;"><%= formTitle %></h3>' +
+
+		formLoop +
+
+		'<% _.each(actionables, function(field) { %>' +
+			'<% if (field.type === "text") { %>' +
+	    		inputTemplate +
+	  	'<% } else if (field.type === "select") { %>' +
+	  			selectTemplate +
+			'<% } else if (field.type === "submit") { %>' +
+	    		submitBtnTemplate +
+	  	'<% } %>' +
+		'<% }); %>' +
+	'</form>';
+	return newFormModel;
+});
+define('views/newFormView',['templates/newFormTemplate'], function(newFormTemplate){
+	var newFormView = Backbone.View.extend({
+		
+		template : _.template(newFormTemplate),
+		events : {
+
+		},
+
+		initialize: function() {
+			console.log("INIT NEW FORM", this.$el);
+			this.render();
+		}, 
+
+		render: function() {
+			this.$el.html(this.template(this.model.attributes));
+		}
+
+	});
+	return newFormView;
+});
+define('models/newFormModel',[], function(){
+	var newFormModel = Backbone.Model.extend({
+		defaults : {
+			formTitle : 'Create New Form',
+			inputs : [{
+				'slug' : 'formName',
+				'placeholder' : 'Form Name (example: My Form)',
+				'type' : 'text',
+				'classes' : 'required'
+			}],
+			actionables : [{
+				'slug' : 'newField',
+				'placeholder' : 'Add New Field',
+				'type' : 'submit',
+				'classes' : 'col-xs-6'
+			}, {
+				'slug' : 'typeDropdown',
+				'placeholder' : 'Type',
+				'type' : 'select',
+				'options' : ["text", "password", "textarea", "submit"],
+				'classes' : 'col-xs-6'
+			}, {
+				'slug' : 'saveForm',
+				'placeholder' : 'Save New Form',
+				'type' : 'submit',
+				'classes' : 'col-xs-12'
+			}]
+		}
+	});
+	return newFormModel;
+});
 define('templates/formTemplate',[
 	'./inputTemplate',
 	'./textAreaTemplate',
@@ -2505,9 +2599,11 @@ define('views/rootView',[
   'models/loginModel',
   'views/userOptionsView',
   'models/userOptionsModel',
+  'views/newFormView',
+  'models/newFormModel',
   'views/formView',
   'models/formModel'
-], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, formView, formModel) {
+], function(rootTemplate, LoginView, LoginModel, UserOptionsView, UserOptionsModel, newFormView, newFormModel, formView, formModel) {
   var RootView = Backbone.View.extend({
 
     user: null,
@@ -2527,6 +2623,7 @@ define('views/rootView',[
 
     subscribeEvents: function() {
       TrApp.EventHub.on('login:success', this.setUser, this);
+      TrApp.EventHub.on('userOpt:newForm', this.initNewForm, this);
       this.model.on('change:currentUser', this.initUserOptions, this);
     },
 
@@ -2544,7 +2641,7 @@ define('views/rootView',[
     initUserOptions: function() {
       var data = this.model.get('currentUser');
       if ( !data.forms || data.forms.length < 1) {
-        data.forms = ["myForm", "conorsForm"];
+        // data.forms = ["myForm", "conorsForm"];
       }
       var userForms = _.map(data.forms, function(formSlug){
         return { 
@@ -2561,6 +2658,13 @@ define('views/rootView',[
           inputs: userForms
         })
       })
+    },
+
+    initNewForm: function() {
+      var newForm = new newFormView({
+        el: $('#newFormEl'),
+        model: new newFormModel()
+      });
     },
 
     // initForms: function() {
