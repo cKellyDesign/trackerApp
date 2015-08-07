@@ -66,9 +66,12 @@ define([
     },
 
     initNewForm: function() {
+      var thisUser = this.model.get('currentUser');
       var newForm = new newFormView({
         el: $('#newFormEl'),
-        model: new newFormModel()
+        model: new newFormModel({
+          username: thisUser.username
+        })
       });
     },
 

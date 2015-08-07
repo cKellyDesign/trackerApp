@@ -2396,19 +2396,21 @@ define('templates/newFormTemplate',[
 	], function (formLoop, inputTemplate, submitBtnTemplate, selectTemplate){
 	var newFormModel = '<form role="form" class="row">' +
 
-		'<h3 style="margin-bottom: 25px; text-align: center;"><%= formTitle %></h3>' +
+		'<h3 style="margin-bottom: 25px; text-align: center;" class="j-newFormTitle"><%= formTitle %></h3>' +
 
 		formLoop +
 
-		'<% _.each(actionables, function(field) { %>' +
-			'<% if (field.type === "text") { %>' +
-	    		inputTemplate +
-	  	'<% } else if (field.type === "select") { %>' +
-	  			selectTemplate +
-			'<% } else if (field.type === "submit") { %>' +
-	    		submitBtnTemplate +
-	  	'<% } %>' +
-		'<% }); %>' +
+		'<div class="j-newFormFields">' +
+			'<% _.each(actionables, function(field) { %>' +
+				'<% if (field.type === "text") { %>' +
+		    		inputTemplate +
+		  	'<% } else if (field.type === "select") { %>' +
+		  			selectTemplate +
+				'<% } else if (field.type === "submit") { %>' +
+		    		submitBtnTemplate +
+		  	'<% } %>' +
+			'<% }); %>' +
+		'</div>' +
 	'</form>';
 	return newFormModel;
 });
@@ -2417,11 +2419,13 @@ define('views/newFormView',['templates/newFormTemplate'], function(newFormTempla
 		
 		template : _.template(newFormTemplate),
 		events : {
-			'click #addNewField' : 'onAddNewField'
+			'click #addNewField' : 'onAddNewField',
+			'click #saveForm' :  'onSaveNewForm'
 		},
 
 		initialize: function() {
 			this.render();
+			this.username = this.model.get('username');
 			this.model.on('change', this.render, this);
 		}, 
 
@@ -2444,8 +2448,52 @@ define('views/newFormView',['templates/newFormTemplate'], function(newFormTempla
 			this.model.set('inputs', inputs);
 		},
 
-		onSaveNewForm: function() {
-			// todo: POST LOGIC GOES HERE
+		onSaveNewForm: function(e) {
+			e.preventDefault();
+
+			var newFields = $('.j-newFormFields .form-control');
+
+      var messageData = {
+      	username: this.username,
+      	formName: $('#formName').val(),
+      	// formTitle : ,
+      	author: this.username,
+      	fields: _.map(newFields, function (field) {
+      		return {
+      			placeholder : $(field).val(),
+      			slug: $(field).attr('id'),
+      			type: $(field).attr('type'),
+      			classes: $(field).attr('class'),
+      			size: $(field).parent().attr('class').replace('control-group ', '')
+      		};
+      	})
+      };
+
+      console.log(messageData);
+			this.saveNewForm(messageData);
+		},
+
+		saveNewForm: function(postData) {
+			var self = this;
+			var url = '/newForm';
+			$.ajax({
+        type: "POST",
+        url: url,
+        data: JSON.stringify(postData),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data) { self.onPostSuccess(data); },
+        error: function(err) { self.onPostFail(err); }
+      });
+
+		},
+
+		onPostSuccess: function() {
+			console.log('POST SUCCESS!!!');
+		},
+
+		onPostFail: function(){
+			console.log('POST FAIL!!');
 		},
 
 		render: function() {
@@ -2694,9 +2742,12 @@ define('views/rootView',[
     },
 
     initNewForm: function() {
+      var thisUser = this.model.get('currentUser');
       var newForm = new newFormView({
         el: $('#newFormEl'),
-        model: new newFormModel()
+        model: new newFormModel({
+          username: thisUser.username
+        })
       });
     },
 
