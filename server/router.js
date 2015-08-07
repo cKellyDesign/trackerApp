@@ -23,7 +23,7 @@ exports.setRoutes = function(trackerApp, db) {
 
 	trackerApp.post('/submitLogin', loginHandler);
 	trackerApp.post('/newUser', newUserHandler);
-	trackerApp.post('/:username/newForm', newFormHandler);
+	trackerApp.post('/newForm', newFormHandler);
 
 	trackerApp.get('/users', listUsers);
 	trackerApp.get('/getUser/:username', getUser);
