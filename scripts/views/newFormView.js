@@ -39,7 +39,7 @@ define(['templates/newFormTemplate'], function(newFormTemplate){
 
       var messageData = {
       	username: this.username,
-      	formName: $('.newFormTitle', this.$el).val(),
+      	formName: $('#formName').val(),
       	// formTitle : ,
       	author: this.username,
       	fields: _.map(newFields, function (field) {

@@ -1,9 +1,17 @@
 var  _ = require('underscore'),
-	mongoose = require('mongoose'),
-	FormModel = require('./../schema/formFields').FormModel,
-	InputField = require('./../schema/formFields').InputField;
+	mongoose = require('mongoose');
+	// FormModel = require('./../schema/formFields').FormModel,
+	// InputField = require('./../schema/formFields').InputField;
 
-module.exports = function newForm (req, res, next) {
+module.exports = function init(Models){
+	// db.on("error", function(errorObject){
+	//   console.log(errorObject); 
+	//   console.log('ONERROR');
+	// });
+	var FormModel = Models.FormModel;
+	var InputField = Models.InputField;
+
+	return function newForm (req, res, next) {
 		var username = req.body.username;
 		console.log("\n\nNEW FORM POSTED BY: ", req.body.username, "\n\n");
 
@@ -11,20 +19,21 @@ module.exports = function newForm (req, res, next) {
 			formName : req.body.formName,
 			// formTitle : req.body.formTitle,
 			author : req.body.username,
-			fields : _.map(req.body.inputs, function(input){
+			fields : _.map(req.body.fields, function(input){
 				return new InputField({
 					placeholder : input.placeholder,
 					slug : input.slug,
 					type : input.type,
 					classes : input.classes
-				}).save();
+				});
 			})
 		};
 
-		// console.log("\n\nformData: ", formData);
-		// new FormModel(formData).save();
-		
-		res.status(200).send(formData);
-		next();
-	
-}
+		console.log("\n\nformData: ", formData);
+		new FormModel(formData).save(function(err, product, numberAffected){
+			console.log("SAVE CALLBACK", product);
+			res.status(200).send(formData);
+			next();
+		});
+	};
+};
